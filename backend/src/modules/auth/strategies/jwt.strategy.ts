@@ -9,7 +9,27 @@ import { User, UserDocument } from '../../../database/schemas/user.schema';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: any) => {
+          if (!req) return null;
+          const headers = req.headers || {};
+          const auth = headers.authorization || headers.Authorization;
+          if (typeof auth === 'string') {
+            const trimmed = auth.trim();
+            if (trimmed.toLowerCase().startsWith('bearer ')) {
+              return trimmed.substring(7).trim();
+            }
+            if (trimmed.startsWith('eyJ')) {
+              return trimmed;
+            }
+          }
+          if (typeof headers['x-auth-token'] === 'string') {
+            return headers['x-auth-token'].trim();
+          }
+          return null;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET || 'rafeeq_super_secret_jwt_key_2026',
     });

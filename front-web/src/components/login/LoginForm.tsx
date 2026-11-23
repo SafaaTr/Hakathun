@@ -118,13 +118,13 @@ export function LoginForm() {
           </div>
         )}
 
-        {/* Email / Username field */}
+        {/* Email / Username / Phone field */}
         <Input
-          label="Email address"
+          label="Username or Phone number"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. maya@happypaws.sy"
+          placeholder="e.g. maya@happypaws.sy or 0911223344"
           icon={<User className="w-4 h-4" />}
           autoComplete="username"
         />

@@ -175,7 +175,7 @@ export default function AdminDoctorsPage() {
           {error && <div className="p-3 rounded-xl bg-danger/10 text-danger text-xs">{error}</div>}
           <Input label="Doctor Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Dr. Example Name" />
           <div>
-            <Input label="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="09XXXXXXXX (10 digits)" maxLength={10} />
+            <Input label="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="09XXXXXXXX (10 digits)" maxLength={10} />
             <p className="text-[11px] text-muted mt-1">
               رقم الموبايل السوري (10 أرقام تبدأ بـ 09، مثال: 0962202918)
             </p>

@@ -333,8 +333,10 @@ export const adminService = {
     pricingType: "free" | "paid";
     dailyPrice?: number | null;
     foodCost?: string;
+    password?: string;
   }): Promise<AdminHostCaregiver> {
     try {
+      const hostPassword = data.password || "Password123";
       const res = await api.post<ApiResponse<any>>("/admin/hosts", {
         name: data.name,
         phone: data.phone,
@@ -344,8 +346,8 @@ export const adminService = {
         pricingType: data.pricingType,
         dailyPrice: data.pricingType === "paid" ? data.dailyPrice : null,
         foodCost: data.foodCost || "Not needed",
-        password: "Password123",
-        confirmPassword: "Password123",
+        password: hostPassword,
+        confirmPassword: hostPassword,
       });
       const h = res.data?.data || res.data;
       return {

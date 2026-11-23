@@ -43,16 +43,29 @@ export class AuthService implements OnModuleInit {
 
   private async seedDefaults() {
     try {
-      const adminCount = await this.userModel.countDocuments({ roles: 'admin' });
-      if (adminCount === 0) {
-        const hash = await bcrypt.hash('Admin@2026', 10);
+      const adminName = process.env.SUPER_ADMIN_NAME || 'admin@rafeeq.sy';
+      const adminPass = process.env.SUPER_ADMIN_PASSWORD || 'Admin@2026';
+      const adminPhone = process.env.SUPER_ADMIN_PHONE || '0911223344';
+
+      let adminUser = await this.userModel.findOne({
+        $or: [{ name: adminName }, { roles: 'admin' }],
+      });
+
+      if (!adminUser) {
+        const hash = await bcrypt.hash(adminPass, 10);
         await this.userModel.create({
-          name: 'admin@rafeeq.sy',
-          phone: '0911223344',
+          name: adminName,
+          phone: adminPhone,
           passwordHash: hash,
           roles: ['admin'],
           isActive: true,
         });
+      } else {
+        const hash = await bcrypt.hash(adminPass, 10);
+        adminUser.name = adminName;
+        adminUser.phone = adminPhone;
+        adminUser.passwordHash = hash;
+        await adminUser.save();
       }
 
       const storeOwner = await this.userModel.findOne({ name: 'maya@happypaws.sy' });
@@ -122,7 +135,10 @@ export class AuthService implements OnModuleInit {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.userModel.findOne({ name: dto.name.trim() }).select('+passwordHash');
+    const identifier = dto.name.trim();
+    const user = await this.userModel.findOne({
+      $or: [{ name: identifier }, { phone: identifier }],
+    }).select('+passwordHash');
     if (!user) {
       throw new UnauthorizedException('Invalid name or password. Please re-enter.');
     }

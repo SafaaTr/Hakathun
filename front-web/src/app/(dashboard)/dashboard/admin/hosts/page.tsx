@@ -13,6 +13,7 @@ export default function AdminHostsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
   const [placeType, setPlaceType] = useState<"home" | "barn">("home");
   const [acceptedPetType, setAcceptedPetType] = useState("Cats, Small Dogs");
@@ -33,12 +34,16 @@ export default function AdminHostsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim() || !address.trim()) {
-      setError("Please fill in all fields.");
+      setError("يرجى ملء جميع الحقول المطلوبة (Please fill in all fields).");
       return;
     }
     const cleanPhone = phone.trim().replace(/[\s-]/g, "");
     if (!/^09\d{8}$/.test(cleanPhone)) {
       setError("رقم الهاتف غير صالح. يجب أن يبدأ بـ 09 ويتألف من 10 أرقام بالضبط (مثال: 0962202918).");
+      return;
+    }
+    if (password && password.length < 8) {
+      setError("كلمة المرور يجب أن لا تقل عن 8 محارف (Password must be at least 8 characters).");
       return;
     }
     try {
@@ -51,11 +56,13 @@ export default function AdminHostsPage() {
         pricingType,
         dailyPrice: pricingType === "paid" ? dailyPrice : null,
         foodCost,
+        password: password.trim() || undefined,
       });
       setHosts((prev) => [created, ...prev]);
       setIsModalOpen(false);
       setName("");
       setPhone("");
+      setPassword("");
       setAddress("");
       setError(null);
     } catch (err: any) {
@@ -196,12 +203,26 @@ export default function AdminHostsPage() {
               label="Phone Number"
               placeholder="09XXXXXXXX (10 digits)"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
               maxLength={10}
               required
             />
             <p className="text-[11px] text-muted mt-1">
               رقم الموبايل السوري (10 أرقام تبدأ بـ 09، مثال: 0962202918)
+            </p>
+          </div>
+
+          <div>
+            <Input
+              label="Caregiver Account Password (Optional)"
+              type="password"
+              placeholder="Defaults to Password123 if blank"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+            />
+            <p className="text-[11px] text-muted mt-1">
+              كلمة مرور حساب المربّي (اختياري، الافتراضي: Password123، 8 محارف على الأقل)
             </p>
           </div>
 
