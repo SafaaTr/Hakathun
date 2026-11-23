@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// Default base URL points to the backend /api/v1 contract
-const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+// Default base URL points to the NestJS backend /api/v1 contract on port 3001
+const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
 export const api = axios.create({
   baseURL,

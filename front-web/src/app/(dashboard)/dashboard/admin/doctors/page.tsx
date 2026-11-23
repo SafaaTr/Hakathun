@@ -44,21 +44,36 @@ export default function AdminDoctorsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim() || !address.trim()) {
-      setError("Please fill in all empty fields.");
+      setError("Please fill in all fields.");
       return;
     }
-    const created = await adminService.createDoctor({ name, phone, address });
-    setDoctors([created, ...doctors]);
-    setIsModalOpen(false);
-    setName("");
-    setPhone("");
-    setAddress("");
-    setError(null);
+    const cleanPhone = phone.trim().replace(/[\s-]/g, "");
+    if (!/^09\d{8}$/.test(cleanPhone)) {
+      setError("رقم الهاتف غير صالح. يجب أن يبدأ بـ 09 ويتألف من 10 أرقام بالضبط (مثال: 0962202918).");
+      return;
+    }
+    try {
+      const created = await adminService.createDoctor({ name: name.trim(), phone: cleanPhone, address: address.trim() });
+      setDoctors((prev) => [created, ...prev]);
+      setIsModalOpen(false);
+      setName("");
+      setPhone("");
+      setAddress("");
+      setError(null);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to create doctor.");
+    }
   };
 
-  const handleToggle = async (id: string) => {
-    const updated = await adminService.toggleDoctorStatus(id);
-    setDoctors((prev) => prev.map((d) => (d._id === id ? updated : d)));
+  const handleToggle = async (id: string, currentStatus?: string) => {
+    await adminService.toggleDoctorStatus(id, currentStatus);
+    setDoctors((prev) =>
+      prev.map((d) =>
+        d._id === id || d.externalDoctorId === id
+          ? { ...d, status: d.status === "available" ? "unavailable" : "available" }
+          : d
+      )
+    );
   };
 
   const filtered = doctors.filter((d) =>
@@ -144,7 +159,7 @@ export default function AdminDoctorsPage() {
               <Button
                 variant={doc.status === "available" ? "secondary" : "primary"}
                 size="sm"
-                onClick={() => handleToggle(doc._id)}
+                onClick={() => handleToggle(doc._id || doc.externalDoctorId, doc.status)}
                 className="gap-1.5 text-xs"
               >
                 <Power className="w-3.5 h-3.5" />
@@ -159,7 +174,12 @@ export default function AdminDoctorsPage() {
         <form onSubmit={handleCreate} className="space-y-4 pt-1">
           {error && <div className="p-3 rounded-xl bg-danger/10 text-danger text-xs">{error}</div>}
           <Input label="Doctor Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Dr. Example Name" />
-          <Input label="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="09XXXXXXXX" />
+          <div>
+            <Input label="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="09XXXXXXXX (10 digits)" maxLength={10} />
+            <p className="text-[11px] text-muted mt-1">
+              رقم الموبايل السوري (10 أرقام تبدأ بـ 09، مثال: 0962202918)
+            </p>
+          </div>
           <Input label="Clinic Address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. Damascus, Shaalan" />
           <div className="flex justify-end gap-3 pt-3 border-t border-card-border">
             <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>

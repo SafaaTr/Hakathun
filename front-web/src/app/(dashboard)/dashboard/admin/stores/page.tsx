@@ -23,21 +23,34 @@ export default function AdminStoresPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim() || !address.trim()) {
-      setError("Please fill in all empty fields.");
+      setError("Please fill in all fields.");
       return;
     }
-    const created = await adminService.createStore({ name, phone, address });
-    setStores([created, ...stores]);
-    setIsModalOpen(false);
-    setName("");
-    setPhone("");
-    setAddress("");
-    setError(null);
+    const cleanPhone = phone.trim().replace(/[\s-]/g, "");
+    if (!/^09\d{8}$/.test(cleanPhone)) {
+      setError("رقم الهاتف غير صالح. يجب أن يبدأ بـ 09 ويتألف من 10 أرقام بالضبط (مثال: 0962202918).");
+      return;
+    }
+    try {
+      const created = await adminService.createStore({ name: name.trim(), phone: cleanPhone, address: address.trim() });
+      setStores((prev) => [created, ...prev]);
+      setIsModalOpen(false);
+      setName("");
+      setPhone("");
+      setAddress("");
+      setError(null);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to create store.");
+    }
   };
 
-  const handleToggle = async (id: string) => {
-    const updated = await adminService.toggleStoreStatus(id);
-    setStores((prev) => prev.map((s) => (s._id === id ? updated : s)));
+  const handleToggle = async (id: string, currentStatus?: string) => {
+    await adminService.toggleStoreStatus(id, currentStatus);
+    setStores((prev) =>
+      prev.map((s) =>
+        s._id === id ? { ...s, status: s.status === "active" ? "closed" : "active" } : s
+      )
+    );
   };
 
   const filtered = stores.filter((s) =>
@@ -120,7 +133,7 @@ export default function AdminStoresPage() {
               <Button
                 variant={store.status === "active" ? "secondary" : "primary"}
                 size="sm"
-                onClick={() => handleToggle(store._id)}
+                onClick={() => handleToggle(store._id, store.status)}
                 className="gap-1.5 text-xs"
               >
                 <Power className="w-3.5 h-3.5" />
@@ -135,7 +148,12 @@ export default function AdminStoresPage() {
         <form onSubmit={handleCreate} className="space-y-4 pt-1">
           {error && <div className="p-3 rounded-xl bg-danger/10 text-danger text-xs">{error}</div>}
           <Input label="Store Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Pet Haven" />
-          <Input label="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="09XXXXXXXX" />
+          <div>
+            <Input label="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="09XXXXXXXX (10 digits)" maxLength={10} />
+            <p className="text-[11px] text-muted mt-1">
+              رقم الموبايل السوري (10 أرقام تبدأ بـ 09، مثال: 0962202918)
+            </p>
+          </div>
           <Input label="Physical Address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. Damascus, Malki" />
           <div className="flex justify-end gap-3 pt-3 border-t border-card-border">
             <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>

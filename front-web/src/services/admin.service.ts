@@ -23,14 +23,18 @@ export interface AdminDoctor {
 
 export interface AdminHostCaregiver {
   _id: string;
-  userId: string;
+  userId?: string;
+  hostUserId?: string;
   name: string;
+  hostName?: string;
   phone: string;
   placeType: "home" | "barn";
   address: string;
+  acceptedPetType?: string;
   pricingType: "free" | "paid";
   dailyPrice: number | null;
   foodCost: string;
+  status?: "available" | "unavailable";
   avgRating: number;
   ratingsCount: number;
 }
@@ -168,72 +172,208 @@ export const adminService = {
   // Stores
   async getStores(): Promise<AdminStore[]> {
     try {
-      const res = await api.get<ApiResponse<AdminStore[]>>("/admin/stores");
-      if (res.data?.data) return res.data.data;
+      const res = await api.get<ApiResponse<any>>("/admin/stores");
+      const list = res.data?.data || res.data;
+      if (Array.isArray(list)) {
+        return list.map((s: any) => ({
+          _id: s._id || s.id,
+          name: s.name,
+          phone: s.phone,
+          address: s.address,
+          status: s.status || "active",
+          productsCount: s.productsCount || 0,
+        }));
+      }
     } catch {}
     return mockStores;
   },
 
   async createStore(data: { name: string; phone: string; address: string }): Promise<AdminStore> {
-    const newStore: AdminStore = {
-      _id: `store_${Date.now()}`,
-      name: data.name,
-      phone: data.phone,
-      address: data.address,
-      status: "active",
-      productsCount: 0,
-    };
-    mockStores = [newStore, ...mockStores];
-    return newStore;
+    try {
+      const res = await api.post<ApiResponse<any>>("/admin/stores", {
+        name: data.name,
+        phone: data.phone,
+        address: data.address,
+      });
+      const s = res.data?.data || res.data;
+      return {
+        _id: s._id || s.id,
+        name: s.name,
+        phone: s.phone,
+        address: s.address,
+        status: s.status || "active",
+        productsCount: 0,
+      };
+    } catch (err: any) {
+      console.error("Failed to create store on backend:", err?.response?.data || err?.message);
+      throw err;
+    }
   },
 
-  async toggleStoreStatus(id: string): Promise<AdminStore> {
+  async toggleStoreStatus(id: string, currentStatus?: string): Promise<AdminStore> {
+    const nextStatus = currentStatus === "active" ? "closed" : "active";
+    try {
+      await api.patch(`/admin/stores/${id}`, { status: nextStatus });
+    } catch {}
     mockStores = mockStores.map((s) =>
-      s._id === id ? { ...s, status: s.status === "active" ? "closed" : "active" } : s
+      s._id === id ? { ...s, status: nextStatus } : s
     );
-    return mockStores.find((s) => s._id === id)!;
+    return {
+      _id: id,
+      name: "",
+      phone: "",
+      address: "",
+      status: nextStatus,
+      productsCount: 0,
+    };
   },
 
   // Doctors
   async getDoctors(): Promise<AdminDoctor[]> {
     try {
-      const res = await api.get<ApiResponse<AdminDoctor[]>>("/admin/doctors");
-      if (res.data?.data) return res.data.data;
+      const res = await api.get<ApiResponse<any>>("/admin/doctors");
+      const list = res.data?.data || res.data;
+      if (Array.isArray(list)) {
+        return list.map((d: any) => ({
+          _id: d._id || d.id || d.doctorId,
+          externalDoctorId: d.doctorId || d.id || d._id,
+          name: d.name,
+          phone: d.phone,
+          address: d.address,
+          status: d.status || "available",
+          avgRating: d.avgRating ?? 5.0,
+          ratingsCount: d.ratingsCount ?? 0,
+        }));
+      }
     } catch {}
     return mockDoctors;
   },
 
   async createDoctor(data: { name: string; phone: string; address: string }): Promise<AdminDoctor> {
-    const newDoc: AdminDoctor = {
-      _id: `doc_${Date.now()}`,
-      externalDoctorId: `ext_${Date.now()}`,
-      name: data.name,
-      phone: data.phone,
-      address: data.address,
-      status: "available",
+    try {
+      const res = await api.post<ApiResponse<any>>("/admin/doctors", {
+        name: data.name,
+        phone: data.phone,
+        address: data.address,
+        password: "Password123",
+        confirmPassword: "Password123",
+      });
+      const d = res.data?.data || res.data;
+      return {
+        _id: d.id || d._id || d.doctorId,
+        externalDoctorId: d.doctorId || d.id,
+        name: d.name,
+        phone: d.phone,
+        address: d.address,
+        status: d.status || "available",
+        avgRating: 5.0,
+        ratingsCount: 0,
+      };
+    } catch (err: any) {
+      console.error("Failed to create doctor on backend:", err?.response?.data || err?.message);
+      throw err;
+    }
+  },
+
+  async toggleDoctorStatus(id: string, currentStatus?: string): Promise<AdminDoctor> {
+    const nextStatus = currentStatus === "available" ? "unavailable" : "available";
+    try {
+      await api.patch(`/admin/doctors/${id}`, { status: nextStatus });
+    } catch {}
+    mockDoctors = mockDoctors.map((d) =>
+      d._id === id || d.externalDoctorId === id
+        ? { ...d, status: nextStatus }
+        : d
+    );
+    return {
+      _id: id,
+      externalDoctorId: id,
+      name: "",
+      phone: "",
+      address: "",
+      status: nextStatus,
       avgRating: 5.0,
       ratingsCount: 0,
     };
-    mockDoctors = [newDoc, ...mockDoctors];
-    return newDoc;
-  },
-
-  async toggleDoctorStatus(id: string): Promise<AdminDoctor> {
-    mockDoctors = mockDoctors.map((d) =>
-      d._id === id
-        ? { ...d, status: d.status === "available" ? "unavailable" : "available" }
-        : d
-    );
-    return mockDoctors.find((d) => d._id === id)!;
   },
 
   // Hosts
   async getHosts(): Promise<AdminHostCaregiver[]> {
     try {
-      const res = await api.get<ApiResponse<AdminHostCaregiver[]>>("/admin/hosts");
-      if (res.data?.data) return res.data.data;
+      const res = await api.get<ApiResponse<any>>("/admin/hosts");
+      const list = res.data?.data || res.data;
+      if (Array.isArray(list)) {
+        return list.map((h: any) => ({
+          _id: h._id || h.id,
+          userId: h.hostUserId || h.userId || h._id,
+          hostUserId: h.hostUserId || h.userId || h._id,
+          name: h.name || h.hostName || "Caregiver",
+          phone: h.phone || "",
+          placeType: h.placeType || "home",
+          address: h.address || "",
+          acceptedPetType: h.acceptedPetType || "Cats, Dogs",
+          pricingType: h.pricingType || "free",
+          dailyPrice: h.dailyPrice ?? null,
+          foodCost: h.foodCost || "Not needed",
+          status: h.status || "available",
+          avgRating: h.avgRating ?? 5.0,
+          ratingsCount: h.ratingsCount ?? 0,
+        }));
+      }
     } catch {}
     return mockHosts;
+  },
+
+  async createHost(data: {
+    name: string;
+    phone: string;
+    address: string;
+    placeType: "home" | "barn";
+    acceptedPetType?: string;
+    pricingType: "free" | "paid";
+    dailyPrice?: number | null;
+    foodCost?: string;
+  }): Promise<AdminHostCaregiver> {
+    try {
+      const res = await api.post<ApiResponse<any>>("/admin/hosts", {
+        name: data.name,
+        phone: data.phone,
+        address: data.address,
+        placeType: data.placeType,
+        acceptedPetType: data.acceptedPetType || "Cats, Small Dogs",
+        pricingType: data.pricingType,
+        dailyPrice: data.pricingType === "paid" ? data.dailyPrice : null,
+        foodCost: data.foodCost || "Not needed",
+        password: "Password123",
+        confirmPassword: "Password123",
+      });
+      const h = res.data?.data || res.data;
+      return {
+        _id: h.id || h._id,
+        userId: h.hostUserId || h.userId || h._id,
+        hostUserId: h.hostUserId || h.userId || h._id,
+        name: h.name,
+        phone: h.phone,
+        placeType: h.placeType,
+        address: h.address,
+        pricingType: h.pricingType,
+        dailyPrice: h.dailyPrice,
+        foodCost: h.foodCost,
+        status: h.status || "available",
+        avgRating: 5.0,
+        ratingsCount: 0,
+      };
+    } catch (err: any) {
+      console.error("Failed to create host on backend:", err?.response?.data || err?.message);
+      throw err;
+    }
+  },
+
+  async toggleHostStatus(id: string, currentStatus?: string): Promise<void> {
+    const nextStatus = currentStatus === "available" ? "unavailable" : "available";
+    try {
+      await api.patch(`/admin/hosts/${id}`, { status: nextStatus });
+    } catch {}
   },
 
   // Pet Owners
