@@ -343,6 +343,14 @@ export class AuthService implements OnModuleInit {
         hostUpdate,
         { upsert: true, new: true },
       );
+    } else if (primaryRole === 'store_owner' || user.roles?.includes('store_owner')) {
+      if (dto.address) {
+        await this.storeModel.findOneAndUpdate(
+          { $or: [{ ownerId: user._id }, { userId: user._id }] },
+          { address: dto.address.trim() },
+          { new: true },
+        );
+      }
     }
 
     return {

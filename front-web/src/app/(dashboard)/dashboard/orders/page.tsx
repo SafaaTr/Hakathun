@@ -81,7 +81,7 @@ export default function PurchaseOrdersPage() {
           <Filter className="w-4 h-4 text-muted mr-1 hidden sm:block" />
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-xs ${
               filterStatus === "all"
                 ? "bg-navy text-white"
                 : "text-muted hover:text-foreground hover:bg-cream/40"
@@ -91,7 +91,7 @@ export default function PurchaseOrdersPage() {
           </button>
           <button
             onClick={() => setFilterStatus("pending")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-xs ${
               filterStatus === "pending"
                 ? "bg-amber-500 text-white"
                 : "text-muted hover:text-foreground hover:bg-cream/40"
@@ -101,7 +101,7 @@ export default function PurchaseOrdersPage() {
           </button>
           <button
             onClick={() => setFilterStatus("approved")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-xs ${
               filterStatus === "approved"
                 ? "bg-emerald-600 text-white"
                 : "text-muted hover:text-foreground hover:bg-cream/40"
@@ -111,7 +111,7 @@ export default function PurchaseOrdersPage() {
           </button>
           <button
             onClick={() => setFilterStatus("rejected")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-xs ${
               filterStatus === "rejected"
                 ? "bg-rose-600 text-white"
                 : "text-muted hover:text-foreground hover:bg-cream/40"
@@ -160,7 +160,7 @@ export default function PurchaseOrdersPage() {
                 {filteredOrders.map((order) => (
                   <tr
                     key={order._id}
-                    className="hover:bg-cream/20 dark:hover:bg-card-border/10 transition-colors"
+                    className="hover:bg-cream/30 dark:hover:bg-card-border/20 transition-all duration-150"
                   >
                     {/* Reference Code */}
                     <td className="py-4 px-6">
@@ -213,14 +213,14 @@ export default function PurchaseOrdersPage() {
                           <>
                             <button
                               onClick={() => handleStatusUpdate(order._id, "approved")}
-                              className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 transition-all duration-150 hover:scale-110 active:scale-95 cursor-pointer shadow-xs"
                               title="Approve Order"
                             >
                               <Check className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleStatusUpdate(order._id, "rejected")}
-                              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-800 transition-all duration-150 hover:scale-110 active:scale-95 cursor-pointer shadow-xs"
                               title="Reject Order"
                             >
                               <X className="w-4 h-4" />

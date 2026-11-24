@@ -50,11 +50,11 @@ export function RecentOrdersTable({
             displayOrders.map((order) => (
               <div
                 key={order._id}
-                className="flex items-center justify-between py-4 hover:bg-cream/20 transition-colors rounded-xl px-3"
+                className="group flex items-center justify-between py-4 hover:bg-cream/40 dark:hover:bg-card-border/30 transition-all duration-150 rounded-xl px-3 hover:-translate-y-0.5 hover:shadow-xs"
               >
                 {/* Order Ref & Icon */}
                 <div className="flex items-center gap-3.5 min-w-36">
-                  <div className="w-8 h-8 rounded-full bg-cream dark:bg-card-border flex items-center justify-center text-navy dark:text-yellow shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-cream dark:bg-card-border flex items-center justify-center text-navy dark:text-yellow shrink-0 group-hover:scale-110 transition-transform duration-200">
                     <ShoppingCart className="w-4 h-4" />
                   </div>
                   <span className="text-sm font-bold text-navy dark:text-yellow">
@@ -80,7 +80,7 @@ export function RecentOrdersTable({
                 {/* Action button */}
                 <button
                   onClick={() => setSelectedOrder(order)}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-muted hover:text-navy dark:hover:text-yellow transition-colors cursor-pointer py-1.5 px-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-muted hover:text-navy dark:hover:text-yellow transition-all duration-150 cursor-pointer py-1.5 px-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 hover:translate-x-0.5 active:scale-95"
                 >
                   <span>Review order</span>
                   <ChevronRight className="w-3.5 h-3.5" />

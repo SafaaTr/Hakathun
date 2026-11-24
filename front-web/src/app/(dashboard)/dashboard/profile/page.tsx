@@ -12,13 +12,14 @@ import { api } from "@/services/api";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, store, isAdmin, logout, login } = useAuth();
+  const { user, store, isAdmin, logout, login, updateStore } = useAuth();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Edit form states
   const [editName, setEditName] = useState(user?.name || "");
   const [editPhone, setEditPhone] = useState(user?.phone || "");
+  const [editAddress, setEditAddress] = useState(store?.address || "");
   const [editPassword, setEditPassword] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
@@ -27,6 +28,7 @@ export default function ProfilePage() {
   const handleOpenEdit = () => {
     setEditName(user?.name || "");
     setEditPhone(user?.phone || "");
+    setEditAddress(store?.address || "Al-Mazzeh, Damascus");
     setEditPassword("");
     setSaveSuccess(null);
     setSaveError(null);
@@ -49,6 +51,11 @@ export default function ProfilePage() {
       return;
     }
 
+    if (!isAdmin && !editAddress.trim()) {
+      setSaveError("Please enter your store address.");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const payload: any = {
@@ -57,6 +64,9 @@ export default function ProfilePage() {
       };
       if (editPassword.trim()) {
         payload.password = editPassword.trim();
+      }
+      if (!isAdmin && editAddress.trim()) {
+        payload.address = editAddress.trim();
       }
 
       await api.patch("/me/profile", payload);
@@ -69,6 +79,10 @@ export default function ProfilePage() {
 
       const token = localStorage.getItem("token") || "";
       login(token, updatedUser as any);
+
+      if (!isAdmin && editAddress.trim()) {
+        updateStore({ address: editAddress.trim() });
+      }
 
       setSaveSuccess("Profile details updated successfully.");
       setTimeout(() => {
@@ -142,7 +156,7 @@ export default function ProfilePage() {
         {/* Profile Info Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Name */}
-          <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1">
+          <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-yellow/30">
             <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
               <User className="w-4 h-4 text-blue" />
               <span>{isAdmin ? "Admin Full Name" : "Owner Name"}</span>
@@ -153,7 +167,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Contact Phone */}
-          <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1">
+          <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-yellow/30">
             <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
               <Phone className="w-4 h-4 text-yellow" />
               <span>Contact Phone</span>
@@ -165,7 +179,7 @@ export default function ProfilePage() {
 
           {/* Address (Store) or Account Type (Admin) */}
           {isAdmin ? (
-            <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1">
+            <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-yellow/30">
               <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
                 <ShieldCheck className="w-4 h-4 text-rose-500" />
                 <span>Authority Scope</span>
@@ -175,7 +189,7 @@ export default function ProfilePage() {
               </p>
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1">
+            <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-yellow/30">
               <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
                 <MapPin className="w-4 h-4 text-rose-500" />
                 <span>Physical Address</span>
@@ -187,7 +201,7 @@ export default function ProfilePage() {
           )}
 
           {/* Operating Currency (Clean standard label without Syrian currency Arabic note) */}
-          <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1">
+          <div className="p-4 rounded-2xl bg-cream/30 dark:bg-card-border/20 border border-card-border/60 space-y-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-yellow/30">
             <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
               <Coins className="w-4 h-4 text-emerald-500" />
               <span>Operating Currency</span>
@@ -274,6 +288,21 @@ export default function ProfilePage() {
               Syrian mobile phone number (10 digits starting with 09)
             </p>
           </div>
+
+          {!isAdmin && (
+            <div>
+              <Input
+                label="Store Physical Address / Location"
+                value={editAddress}
+                onChange={(e) => setEditAddress(e.target.value)}
+                placeholder="e.g. Al-Mazzeh, Damascus"
+                required
+              />
+              <p className="text-[11px] text-muted mt-1">
+                Store location displayed to customers and on invoices
+              </p>
+            </div>
+          )}
 
           <div>
             <Input

@@ -106,7 +106,7 @@ export default function MyProductsPage() {
           <Filter className="w-4 h-4 text-muted mr-1 hidden sm:block" />
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-xs ${
               filterStatus === "all"
                 ? "bg-navy text-white"
                 : "text-muted hover:text-foreground hover:bg-cream/40"
@@ -116,7 +116,7 @@ export default function MyProductsPage() {
           </button>
           <button
             onClick={() => setFilterStatus("available")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-xs ${
               filterStatus === "available"
                 ? "bg-emerald-600 text-white"
                 : "text-muted hover:text-foreground hover:bg-cream/40"
@@ -126,7 +126,7 @@ export default function MyProductsPage() {
           </button>
           <button
             onClick={() => setFilterStatus("unavailable")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-xs ${
               filterStatus === "unavailable"
                 ? "bg-slate-700 text-white"
                 : "text-muted hover:text-foreground hover:bg-cream/40"

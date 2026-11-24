@@ -14,6 +14,7 @@ interface AuthContextType {
   token: string | null;
   login: (token: string, userData?: User) => void;
   logout: () => void;
+  updateStore: (data: Partial<Store>) => void;
   isAuthenticated: boolean;
   isStoreOwner: boolean;
   isAdmin: boolean;
@@ -31,6 +32,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const savedToken = localStorage.getItem("token");
       const savedUser = localStorage.getItem("user");
+      const savedStore = localStorage.getItem("store");
+      if (savedStore) {
+        try {
+          setStore(JSON.parse(savedStore));
+        } catch {}
+      }
 
       const defaultAdmin: User = {
         _id: "6b0437d44e9594edc2d011e3",
@@ -80,11 +87,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateStore = (data: Partial<Store>) => {
+    setStore((prev) => {
+      const updated = prev ? { ...prev, ...data } : ({ ...initialStore, ...data } as Store);
+      localStorage.setItem("store", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("store");
   };
 
   const isStoreOwner = Boolean(user?.roles?.includes("store_owner"));
@@ -98,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         login,
         logout,
+        updateStore,
         isAuthenticated: !!token,
         isStoreOwner,
         isAdmin,
