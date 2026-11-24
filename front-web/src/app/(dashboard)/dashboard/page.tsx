@@ -5,6 +5,7 @@ import { ShoppingBag, Clock, Coins, Store, Stethoscope, Users, HeartHandshake } 
 import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { RecentOrdersTable } from "@/components/dashboard/RecentOrdersTable";
+import { PlatformPulseAnimation } from "@/components/dashboard/PlatformPulseAnimation";
 import { useAuth } from "@/context/AuthContext";
 import { orderService } from "@/services/order.service";
 import { productService } from "@/services/product.service";
@@ -182,12 +183,17 @@ export default function DashboardHomePage() {
         </div>
       )}
 
-      {/* Recent Orders Section */}
-      <RecentOrdersTable
-        orders={orders}
-        onApproveOrder={handleApproveOrder}
-        onRejectOrder={handleRejectOrder}
-      />
+      {/* For Admin: Interactive Anime.js Live Ecosystem Pulse Widget */}
+      {isAdmin ? (
+        <PlatformPulseAnimation stats={adminStats} />
+      ) : (
+        /* Recent Orders Section for Store Owner */
+        <RecentOrdersTable
+          orders={orders}
+          onApproveOrder={handleApproveOrder}
+          onRejectOrder={handleRejectOrder}
+        />
+      )}
     </div>
   );
 }

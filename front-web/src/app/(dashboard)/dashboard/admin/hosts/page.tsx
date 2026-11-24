@@ -140,9 +140,20 @@ export default function AdminHostsPage() {
                       </div>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300 dark:border-amber-400/30 border border-amber-500/30 uppercase shadow-xs">
-                    {host.placeType}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300 dark:border-amber-400/30 border border-amber-500/30 uppercase shadow-xs">
+                      {host.placeType}
+                    </span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-extrabold shadow-xs ${
+                        isAvailable
+                          ? "bg-emerald-600 text-white dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30 border border-emerald-600"
+                          : "bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
+                      }`}
+                    >
+                      {isAvailable ? "Active" : "Unavailable"}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5 text-xs text-muted">
@@ -165,17 +176,15 @@ export default function AdminHostsPage() {
 
               <div className="pt-3 border-t border-card-border flex items-center justify-between text-xs text-muted">
                 <span>Food: {host.foodCost}</span>
-                <button
+                <Button
+                  variant={isAvailable ? "secondary" : "primary"}
+                  size="sm"
                   onClick={() => handleToggle(hostId, host.status)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-all text-xs cursor-pointer ${
-                    isAvailable
-                      ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
-                      : "bg-red-500/10 text-red-600 hover:bg-red-500/20"
-                  }`}
+                  className="gap-1.5 text-xs"
                 >
                   <Power className="w-3.5 h-3.5" />
-                  <span>{isAvailable ? "Available" : "Unavailable"}</span>
-                </button>
+                  <span>{isAvailable ? "Deactivate" : "Activate"}</span>
+                </Button>
               </div>
             </div>
           );
