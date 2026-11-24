@@ -93,12 +93,12 @@ export function OrderDetailsModal({
                       {item.productName}
                     </p>
                     <p className="text-[11px] text-muted">
-                      Qty: {item.quantity} × {item.unitPrice.toLocaleString()} SYP
+                      Qty: {item.quantity} × {(Number(item.unitPrice) || 0).toLocaleString()} SYP
                     </p>
                   </div>
                 </div>
                 <span className="font-bold text-foreground">
-                  {(item.unitPrice * item.quantity).toLocaleString()} SYP
+                  {(Number(item.unitPrice || 0) * Number(item.quantity || 1)).toLocaleString()} SYP
                 </span>
               </div>
             ))}
@@ -111,7 +111,7 @@ export function OrderDetailsModal({
             Total Price
           </span>
           <span className="text-xl font-extrabold text-slate-900 dark:text-yellow">
-            {order.totalPrice.toLocaleString()} SYP
+            {(Number(order.totalPrice) || 0).toLocaleString()} SYP
           </span>
         </div>
 

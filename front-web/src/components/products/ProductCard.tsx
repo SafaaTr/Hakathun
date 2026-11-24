@@ -56,7 +56,7 @@ export function ProductCard({ product, onEdit, onDeactivate }: ProductCardProps)
             Price
           </span>
           <span className="text-base font-extrabold text-navy dark:text-yellow">
-            {product.price.toLocaleString()} SYP
+            {(Number(product?.price) || 0).toLocaleString()} SYP
           </span>
         </div>
 

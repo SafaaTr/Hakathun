@@ -186,7 +186,7 @@ export default function DashboardHomePage() {
           />
           <StatCard
             label="Sales today"
-            value={stats.salesToday.toLocaleString()}
+            value={(stats?.salesToday ?? 0).toLocaleString()}
             subValue="SYP · Cash on Delivery"
             icon={<Coins className="w-5 h-5 text-yellow" />}
           />

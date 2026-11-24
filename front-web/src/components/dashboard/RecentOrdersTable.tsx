@@ -69,7 +69,7 @@ export function RecentOrdersTable({
 
                 {/* Price in SYP */}
                 <div className="text-sm font-extrabold text-foreground min-w-32">
-                  {order.totalPrice.toLocaleString()} SYP
+                  {(Number(order.totalPrice) || 0).toLocaleString()} SYP
                 </div>
 
                 {/* Status Badge */}

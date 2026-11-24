@@ -191,7 +191,7 @@ export default function PurchaseOrdersPage() {
 
                     {/* Total Price */}
                     <td className="py-4 px-6 font-extrabold text-foreground">
-                      {order.totalPrice.toLocaleString()} SYP
+                      {(Number(order.totalPrice) || 0).toLocaleString()} SYP
                     </td>
 
                     {/* Payment Method */}

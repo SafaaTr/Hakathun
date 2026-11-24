@@ -77,9 +77,8 @@ export class StoreOwnerController {
   @Get('products')
   @ApiOperation({ summary: 'List all products for the authenticated store owner' })
   async getOwnerProducts(@CurrentUser() user: { userId: string }) {
-    // Returns products for the store
-    const store = await this.storeService.getActiveStores();
-    return { data: store };
+    const products = await this.storeService.getOwnerProducts(user?.userId);
+    return { data: products };
   }
 
   @Post('products')

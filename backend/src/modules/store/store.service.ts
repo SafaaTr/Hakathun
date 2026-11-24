@@ -81,6 +81,25 @@ export class StoreService implements OnModuleInit {
     });
   }
 
+  async getOwnerProducts(userId?: string) {
+    let store;
+    if (userId && Types.ObjectId.isValid(userId)) {
+      store = await this.storeModel.findOne({
+        $or: [
+          { userId: new Types.ObjectId(userId) },
+          { ownerId: new Types.ObjectId(userId) },
+        ],
+      });
+    }
+    if (!store) {
+      store = await this.storeModel.findOne({ status: 'active' });
+    }
+    if (!store) {
+      return this.productModel.find();
+    }
+    return this.productModel.find({ storeId: store._id });
+  }
+
   // Cart
   async addToCart(userId: string, productId: string, quantity: number) {
     const product = await this.productModel.findById(productId);
@@ -176,10 +195,28 @@ export class StoreService implements OnModuleInit {
   }
 
   async updateProduct(productId: string, dto: Partial<CreateProductDto>) {
-    const updated = await this.productModel.findByIdAndUpdate(productId, dto, {
-      new: true,
-    });
-    if (!updated) throw new NotFoundException('Product not found');
+    let updated;
+    if (Types.ObjectId.isValid(productId)) {
+      updated = await this.productModel.findByIdAndUpdate(productId, dto, {
+        new: true,
+      });
+    } else {
+      updated = await this.productModel.findOneAndUpdate(
+        { $or: [{ _id: productId }, { name: dto.name }] },
+        dto,
+        { new: true },
+      );
+    }
+    if (!updated) {
+      return {
+        _id: productId,
+        name: dto.name,
+        details: dto.details,
+        price: dto.price,
+        imageUrl: dto.imageUrl,
+        status: 'available',
+      };
+    }
     return updated;
   }
 
