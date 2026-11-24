@@ -1,5 +1,5 @@
 // src/services/legacyDoctorAuth.ts
-// خدمة مستقلة لتجربة تسجيل دخول الطبيب على الباك القديم الخاص بالدكتور
+// Independent service for doctor authentication with legacy doctor endpoints
 
 
 export const LEGACY_DOCTOR_API_BASE_URL = "http://192.168.10.78:3001/api/doctors";

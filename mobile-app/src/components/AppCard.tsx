@@ -9,8 +9,8 @@ import {
 interface AppCardProps extends Omit<ViewProps, "className"> {
   children: React.ReactNode;
   onPress?: TouchableOpacityProps["onPress"];
-  color?: string; // لون خلفية البطاقة 
-  borderColor?: string; // لون الحدود 
+  color?: string; // card background color
+  borderColor?: string; // border color 
   className?: string;
 }
 

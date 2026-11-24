@@ -50,7 +50,7 @@ export default function RatingModal({
             Rate {targetName}
           </Text>
 
-          {/* نجوم 1 إلى 5 */}
+          {/* Stars 1 to 5 */}
           <View className="flex-row justify-center gap-3 py-2">
             {[1, 2, 3, 4, 5].map((star) => {
               const active = star <= rating;

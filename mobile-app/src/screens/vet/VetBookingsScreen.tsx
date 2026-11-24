@@ -143,8 +143,8 @@ export default function VetBookingsScreen({
         type: "success",
         text:
           decision === "approved"
-            ? "تم تأكيد الحجز بنجاح ونقله إلى قسم المؤكدة (Approved)."
-            : "تم رفض طلب الحجز.",
+            ? "Booking confirmed successfully and moved to Confirmed section."
+            : "Booking request rejected.",
       });
     } catch (err: any) {
       setBookings((prev) =>
@@ -161,8 +161,8 @@ export default function VetBookingsScreen({
         type: "success",
         text:
           decision === "approved"
-            ? "تم تأكيد الحجز بنجاح ونقله إلى قسم المؤكدة (Approved)."
-            : "تم رفض الحجز.",
+            ? "Booking confirmed successfully and moved to Confirmed section."
+            : "Booking request rejected.",
       });
     } finally {
       setProcessingId(null);
@@ -212,7 +212,7 @@ export default function VetBookingsScreen({
               activeTab === "pending" ? "text-white" : "text-slate-600 dark:text-slate-300"
             }`}
           >
-            قيد الانتظار ({pendingBookings.length})
+            Pending ({pendingBookings.length})
           </Text>
         </TouchableOpacity>
 
@@ -234,7 +234,7 @@ export default function VetBookingsScreen({
               activeTab === "approved" ? "text-white" : "text-slate-600 dark:text-slate-300"
             }`}
           >
-            المؤكدة ({approvedBookings.length})
+            Confirmed ({approvedBookings.length})
           </Text>
         </TouchableOpacity>
 
@@ -251,7 +251,7 @@ export default function VetBookingsScreen({
               activeTab === "all" ? "text-white" : "text-slate-600 dark:text-slate-300"
             }`}
           >
-            الكل ({bookings.length})
+            All ({bookings.length})
           </Text>
         </TouchableOpacity>
       </View>
@@ -290,15 +290,15 @@ export default function VetBookingsScreen({
           />
           <Text className="text-sm font-extrabold text-[#2A4D75] dark:text-white mt-3">
             {activeTab === "pending"
-              ? "لا توجد طلبات حجز قيد الانتظار حالياً"
+              ? "No pending booking requests currently"
               : activeTab === "approved"
-              ? "لا توجد حجوزات مؤكدة بعد"
-              : "لا توجد حجوزات"}
+              ? "No confirmed bookings yet"
+              : "No bookings"}
           </Text>
           <Text className="text-xs text-slate-500 text-center mt-1">
             {activeTab === "pending"
-              ? "أي طلبات حجز جديدة من أصحاب الحيوانات ستظهر هنا لتأكيدها."
-              : "الحجوزات التي تقوم بتأكيدها ستظهر دائماً في هذا القسم."}
+              ? "New appointment requests from pet owners will appear here to confirm."
+              : "Bookings you confirm will always appear in this section."}
           </Text>
         </AppCard>
       ) : (
@@ -342,17 +342,17 @@ export default function VetBookingsScreen({
                     }`}
                   >
                     {booking.status === "approved"
-                      ? "✓ مؤكد (Approved)"
+                      ? "✓ Confirmed"
                       : booking.status === "rejected"
-                      ? "✕ مرفوض (Rejected)"
-                      : "⏳ قيد الانتظار (Pending)"}
+                      ? "✕ Rejected"
+                      : "⏳ Pending"}
                   </Text>
                 </View>
               </View>
 
               <View className="flex-row items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
                 <Text className="text-xs font-semibold text-[#557FB3]">
-                  Slot Status: {booking.slotStatus === "booked" ? "Booked (محجوز)" : "Available (متاح)"}
+                  Slot Status: {booking.slotStatus === "booked" ? "Booked" : "Available"}
                 </Text>
 
                 {booking.status === "pending" ? (
@@ -375,7 +375,7 @@ export default function VetBookingsScreen({
                     >
                       <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" />
                       <Text className="text-xs font-bold text-white">
-                        {isProcessing ? "Confirming..." : "تأكيد (Confirm)"}
+                        {isProcessing ? "Confirming..." : "Confirm"}
                       </Text>
                     </TouchableOpacity>
                   </View>

@@ -5,10 +5,10 @@ import { Ionicons } from "@expo/vector-icons";
 interface AppInputProps extends Omit<TextInputProps, "className"> {
   label?: string;
   error?: string;
-  color?: string; // لون خلفية الحقل (bg-white)
-  textColor?: string; // لون النص (text-slate-900)
-  borderColor?: string; // لون الحدود (border-slate-300)
-  placeholderColor?: string; // لون الـ placeholder مباشرة للـ TextInput
+  color?: string; // input background color (bg-white)
+  textColor?: string; // text color (text-slate-900)
+  borderColor?: string; // border color (border-slate-300)
+  placeholderColor?: string; // placeholder color for TextInput
   className?: string;
   inputClassName?: string;
   labelClassName?: string;

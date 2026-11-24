@@ -76,7 +76,7 @@ export default function DevScreenNavigator({
 
   return (
     <>
-      {/* شريط تنقل علوي بسيط وواضح للتجربة والانتقال */}
+      {/* Top navigation bar */}
       <View className="flex-row items-center justify-between px-4 py-2.5 bg-white dark:bg-[#1E2733] border-b border-slate-200 dark:border-slate-700">
         <TouchableOpacity
           onPress={() => setMenuOpen(true)}
@@ -97,7 +97,7 @@ export default function DevScreenNavigator({
         <ThemeToggleButton />
       </View>
 
-      {/* قائمة اختيار أي شاشة */}
+      {/* Screen Selection Modal */}
       <Modal
         visible={menuOpen}
         animationType="slide"

@@ -1,11 +1,11 @@
 // src/constants/colors.ts
 
 export const colorPalette = {
-  sandCream: "#E4EAF1", // Color 1 - خلفية التطبيق المطلوبة  (#E4EAF1)
-  softSand: "#F6D28B",  // Color 2 - أصفر رملي ناعم
-  accentGold: "#EAB642",// Color 3 - العسلي/الذهبي للأزرار والعناصر النشطة
-  softBlue: "#557FB3",  // Color 4 - الأزرق الناعم
-  navyDark: "#2A4D75",  // Color 5 - الأزرق الكحلي للعناوين والنصوص
+  sandCream: "#E4EAF1", // Color 1 - app background (#E4EAF1)
+  softSand: "#F6D28B",  // Color 2 - soft sand yellow
+  accentGold: "#EAB642",// Color 3 - gold accent for buttons and active items
+  softBlue: "#557FB3",  // Color 4 - soft blue
+  navyDark: "#2A4D75",  // Color 5 - dark navy for headings and primary text
 };
 
 export const colors = {
@@ -15,7 +15,7 @@ export const colors = {
   navy: colorPalette.navyDark,
   sandBg: colorPalette.sandCream,
   
-  // خلفيات ونصوص
+  // Backgrounds and text
   bgLight: colorPalette.sandCream,
   bgDark: "#121820",
   cardLight: "#FFFFFF",

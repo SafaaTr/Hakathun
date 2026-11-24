@@ -221,12 +221,12 @@ export default function HostProfileScreen({
       setIsEditing(false);
       setFeedback({
         type: "success",
-        text: "تم حفظ وتحديث بيانات الحساب بنجاح في قاعدة البيانات.",
+        text: "Account information saved and updated successfully.",
       });
     } catch (err: any) {
       setFeedback({
         type: "error",
-        text: err?.message || "فشل في حفظ البيانات. يرجى المحاولة ثانية.",
+        text: err?.message || "Failed to save profile. Please try again.",
       });
     } finally {
       setSaving(false);

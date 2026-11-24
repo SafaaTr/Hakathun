@@ -1,4 +1,4 @@
-//   داخل src/services/rafeeqService.ts
+// src/services/rafeeqService.ts
 import { fetchApi } from "./apiClient";
 
 export type BookingStatus = "pending" | "approved" | "rejected";
@@ -33,7 +33,7 @@ export interface VetAppointmentBooking {
   status: BookingStatus;
   customerName: string;
   customerPhone?: string;
-  petSummary: string; // مثال: Cat • Luna (2y)
+  petSummary: string; // e.g.: Cat • Luna (2y)
 }
 
 export interface VetDoctorAccount {
@@ -147,7 +147,7 @@ export async function submitRating(payload: {
   );
 }
 
-// جلب بيانات الطبيب وحجوزاته
+// Fetch doctor profile and bookings
 export async function getVetAppointmentsAndProfile(externalDoctorId: string): Promise<{
   doctor: VetDoctorAccount;
   bookings: VetAppointmentBooking[];
@@ -229,7 +229,7 @@ export async function getVetAppointmentsAndProfile(externalDoctorId: string): Pr
   );
 }
 
-// تأكيد أو رفض حجز من تطبيق الطبيب (يحدّث الحالة إلى approved أو rejected)
+// Confirm or reject booking from doctor app (updates status to approved or rejected)
 export async function updateVetBookingDecision(payload: {
   bookingId: string;
   decision: "approved" | "rejected";
@@ -247,7 +247,7 @@ export async function updateVetBookingDecision(payload: {
   );
 }
 
-// تحديث بيانات ملف الطبيب
+// Update doctor profile information
 export async function updateVetProfileInfo(payload: {
   externalDoctorId: string;
   name: string;
@@ -282,7 +282,7 @@ export async function updateVetProfileInfo(payload: {
   };
 }
 
-// حفظ/إضافة مواعيد الطبيب الأسبوعية (ExternalSlotDto[])
+// Save/add weekly doctor schedule slots (ExternalSlotDto[])
 export async function saveVetWeeklySlots(payload: {
   externalDoctorId: string;
   slots: ExternalSlotDto[];

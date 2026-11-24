@@ -120,7 +120,7 @@ export default function HostBookingsScreen({
       setActiveTab("approved");
       setFeedbackMsg({
         type: "success",
-        text: "تم تأكيد الحجز بنجاح وحفظه في قاعدة البيانات ونقله لقسم المؤكدة.",
+        text: "Booking confirmed successfully and moved to Confirmed section.",
       });
     } catch (err: any) {
       setBookings((prev) =>
@@ -131,7 +131,7 @@ export default function HostBookingsScreen({
       setActiveTab("approved");
       setFeedbackMsg({
         type: "success",
-        text: "تم تأكيد الحجز ونقله لقسم المؤكدة.",
+        text: "Booking confirmed and moved to Confirmed section.",
       });
     } finally {
       setProcessingId(null);
@@ -156,7 +156,7 @@ export default function HostBookingsScreen({
 
       setFeedbackMsg({
         type: "success",
-        text: "تم رفض طلب الاستضافة.",
+        text: "Hosting request rejected.",
       });
     } catch (err: any) {
       setBookings((prev) =>
@@ -166,7 +166,7 @@ export default function HostBookingsScreen({
       );
       setFeedbackMsg({
         type: "success",
-        text: "تم رفض طلب الاستضافة.",
+        text: "Hosting request rejected.",
       });
     } finally {
       setProcessingId(null);
@@ -215,7 +215,7 @@ export default function HostBookingsScreen({
               activeTab === "pending" ? "text-white" : "text-slate-600 dark:text-slate-300"
             }`}
           >
-            قيد الانتظار ({pendingBookings.length})
+            Pending ({pendingBookings.length})
           </Text>
         </TouchableOpacity>
 
@@ -236,7 +236,7 @@ export default function HostBookingsScreen({
               activeTab === "approved" ? "text-white" : "text-slate-600 dark:text-slate-300"
             }`}
           >
-            المؤكدة ({approvedBookings.length})
+            Confirmed ({approvedBookings.length})
           </Text>
         </TouchableOpacity>
 
@@ -252,7 +252,7 @@ export default function HostBookingsScreen({
               activeTab === "all" ? "text-white" : "text-slate-600 dark:text-slate-300"
             }`}
           >
-            الكل ({bookings.length})
+            All ({bookings.length})
           </Text>
         </TouchableOpacity>
       </View>
@@ -298,10 +298,10 @@ export default function HostBookingsScreen({
           />
           <Text className="text-sm font-bold text-[#2A4D75] dark:text-white">
             {activeTab === "approved"
-              ? "لا توجد حجوزات استضافة مؤكدة حالياً"
+              ? "No confirmed hosting bookings yet"
               : activeTab === "pending"
-              ? "لا توجد طلبات استضافة قيد الانتظار"
-              : "لا توجد حجوزات"}
+              ? "No pending hosting requests"
+              : "No bookings"}
           </Text>
         </AppCard>
       ) : (
@@ -348,10 +348,10 @@ export default function HostBookingsScreen({
                     }`}
                   >
                     {item.status === "approved"
-                      ? "✓ مؤكد (Approved)"
+                      ? "✓ Confirmed"
                       : item.status === "rejected"
-                      ? "✕ مرفوض (Rejected)"
-                      : "⏳ قيد الانتظار (Pending)"}
+                      ? "✕ Rejected"
+                      : "⏳ Pending"}
                   </Text>
                 </View>
               </View>
@@ -381,7 +381,7 @@ export default function HostBookingsScreen({
                     >
                       <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" />
                       <Text className="text-xs font-bold text-white">
-                        {isProcessing ? "Confirming..." : "تأكيد (Confirm)"}
+                        {isProcessing ? "Confirming..." : "Confirm"}
                       </Text>
                     </TouchableOpacity>
                   </View>

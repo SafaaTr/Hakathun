@@ -342,7 +342,7 @@ export default function VetScheduleScreen({
                       : "text-amber-800 dark:text-amber-300"
                   }`}
                 >
-                  {slot.status === "available" ? "متاح (Available)" : "محجوز (Booked)"}
+                  {slot.status === "available" ? "Available" : "Booked"}
                 </Text>
               </View>
             </View>

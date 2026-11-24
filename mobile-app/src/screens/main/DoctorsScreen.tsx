@@ -307,7 +307,7 @@ export default function DoctorsScreen() {
         </View>
       ) : null}
 
-      {/* 1. Time Selection Card (اختيار الوقت المناسب) placed at the top */}
+      {/* 1. Time Selection Card placed at the top */}
       {activeDoctor ? (
         <AppCard
           color="bg-white dark:bg-[#1E2733]"
@@ -316,7 +316,7 @@ export default function DoctorsScreen() {
           <View className="flex-row items-center justify-between">
             <View>
               <Text className="text-xs uppercase font-bold text-[#557FB3]">
-                اختيار الوقت المناسب
+                Select Time Slot
               </Text>
               <Text className="text-base font-extrabold text-[#2A4D75] dark:text-white">
                 {activeDoctor.name} — Weekly Slots

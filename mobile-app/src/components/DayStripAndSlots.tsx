@@ -48,7 +48,7 @@ export default function DayStripAndSlots({
 
     const currentTime = getCurrentTimeHHmm();
 
-    // تجميع المواعيد حسب date
+    // Group slots by date
     const groupedMap = new Map<string, ExternalSlotDto[]>();
     for (const slot of slots) {
       const list = groupedMap.get(slot.date) ?? [];
@@ -56,7 +56,7 @@ export default function DayStripAndSlots({
       groupedMap.set(slot.date, list);
     }
 
-    // بناء قائمة 7 أيام قادمة من اليوم
+    // Build 7-day strip from today
     const days: DayGroup[] = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(todayDate);
@@ -114,7 +114,7 @@ export default function DayStripAndSlots({
         Select a day
       </Text>
 
-      {/* شريط الأيام الأفقي */}
+      {/* Horizontal Day Strip */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -173,7 +173,7 @@ export default function DayStripAndSlots({
         })}
       </ScrollView>
 
-      {/* شبكة الساعات */}
+      {/* Hours Grid */}
       <Text className="text-base font-bold text-[#2A4D75] dark:text-white mt-1">
         Available times {activeDay ? `(${activeDay.dayLabel})` : ""}
       </Text>

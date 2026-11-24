@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const data = await loginRequest(phone, password);
-      setUser(data); // <-حفظ بيانات المستخدم اً
+      setUser(data); // Save user data
       return data;
     } finally {
       setLoading(false);

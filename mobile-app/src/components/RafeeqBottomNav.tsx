@@ -13,7 +13,7 @@ export type MainTabKey =
 interface RafeeqBottomNavProps {
   activeTab: MainTabKey;
   onSelectTab: (tab: MainTabKey) => void;
-  canHost?: boolean; // يحدد ظهور تبويب Care للمربي / الدور المزدوج
+  canHost?: boolean; // Controls showing the Care tab for host role
 }
 
 export default function RafeeqBottomNav({
@@ -96,7 +96,7 @@ export default function RafeeqBottomNav({
               {tab.label}
             </Text>
 
-            {/* الخط الأزرق الصغير أسفل التبويب النشط مثل التصميم */}
+            {/* Active tab indicator dot/line */}
             <View
               style={{
                 backgroundColor: isActive ? colorPalette.softBlue : "transparent",

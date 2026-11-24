@@ -138,13 +138,13 @@ export default function VetProfileScreen({
 
       updateUser({ name: finalName, phone: finalPhone });
       setIsEditing(false);
-      setFeedback({ type: "success", text: "تم تحديث وحفظ بيانات الطبيب بنجاح." });
+      setFeedback({ type: "success", text: "Doctor profile updated and saved successfully." });
     } catch (error: any) {
       const finalName = nameInput.trim();
       const finalPhone = phoneInput.trim();
       updateUser({ name: finalName, phone: finalPhone });
       setIsEditing(false);
-      setFeedback({ type: "success", text: "تم تحديث وحفظ بيانات الطبيب بنجاح." });
+      setFeedback({ type: "success", text: "Doctor profile updated and saved successfully." });
     } finally {
       setSaving(false);
     }
@@ -201,7 +201,7 @@ export default function VetProfileScreen({
               {profile?.name || nameInput || doctorName}
             </Text>
             <Text className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-              Verified Veterinarian • طبيب بيطري
+              Verified Veterinarian
             </Text>
             <Text className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {phoneInput}
@@ -252,7 +252,7 @@ export default function VetProfileScreen({
         >
           <Ionicons name={isEditing ? "close-circle" : "create-outline"} size={18} color="#FFFFFF" />
           <Text className="text-xs font-extrabold text-white">
-            {isEditing ? "إغلاق نافذة التعديل (Close Editor)" : "✏️ تعديل بيانات الدكتور (Edit Profile)"}
+            {isEditing ? "Close Editor" : "✏️ Edit Profile"}
           </Text>
         </TouchableOpacity>
 
@@ -264,7 +264,7 @@ export default function VetProfileScreen({
             </Text>
 
             <AppInput
-              label="Doctor Name / الاسم"
+              label="Doctor Name"
               leftIcon="person-outline"
               value={nameInput}
               onChangeText={setNameInput}
@@ -272,7 +272,7 @@ export default function VetProfileScreen({
             />
 
             <AppInput
-              label="Phone Number / رقم الهاتف"
+              label="Phone Number"
               leftIcon="call-outline"
               value={phoneInput}
               onChangeText={setPhoneInput}
@@ -281,7 +281,7 @@ export default function VetProfileScreen({
             />
 
             <AppInput
-              label="Clinic Name / اسم العيادة"
+              label="Clinic Name"
               leftIcon="medkit-outline"
               value={clinicInput}
               onChangeText={setClinicInput}
@@ -289,7 +289,7 @@ export default function VetProfileScreen({
             />
 
             <AppInput
-              label="Clinic Address / عنوان العيادة"
+              label="Clinic Address"
               leftIcon="location-outline"
               value={addressInput}
               onChangeText={setAddressInput}
@@ -297,7 +297,7 @@ export default function VetProfileScreen({
             />
 
             <AppInput
-              label="Specialization / التخصص"
+              label="Specialization"
               leftIcon="ribbon-outline"
               value={specializationInput}
               onChangeText={setSpecializationInput}
@@ -305,7 +305,7 @@ export default function VetProfileScreen({
             />
 
             <AppInput
-              label="Consultation Price (SYP) / سعر الكشفية"
+              label="Consultation Price (SYP)"
               leftIcon="cash-outline"
               value={priceInput}
               onChangeText={setPriceInput}
@@ -314,7 +314,7 @@ export default function VetProfileScreen({
             />
 
             <AppInput
-              label="Bio / نبذة تعريفية"
+              label="Bio / Description"
               leftIcon="document-text-outline"
               value={bioInput}
               onChangeText={setBioInput}
@@ -332,7 +332,7 @@ export default function VetProfileScreen({
             >
               <Ionicons name="save-outline" size={18} color="#0F172A" />
               <Text className="text-xs font-extrabold text-slate-900">
-                {saving ? "Saving Changes..." : "حفظ التعديلات (Save Changes)"}
+                {saving ? "Saving Changes..." : "Save Changes"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -347,7 +347,7 @@ export default function VetProfileScreen({
       >
         <Ionicons name="log-out-outline" size={18} color="#B91C1C" />
         <Text className="text-sm font-bold text-red-700 dark:text-red-300">
-          تسجيل الخروج (Log Out)
+          Log Out
         </Text>
       </TouchableOpacity>
     </ScrollView>

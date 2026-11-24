@@ -64,7 +64,7 @@ export default function VetLoginScreen({ onLoginSuccess }: VetLoginScreenProps) 
     setErrorMsg("");
     setSuccessInfo("");
 
-    // التحقق الأساسي من إدخال رقم الهاتف وكلمة المرور
+    // Validate phone number and password format
     const phoneRegex = /^09\d{8}$/;
     if (!phoneRegex.test(phone.trim()) || password.length < 8) {
       setErrorMsg("Invalid name or password. Please re-enter.");

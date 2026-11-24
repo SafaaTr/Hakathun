@@ -19,10 +19,10 @@ export default function OnboardingScreen({ navigation, route }: Props) {
     if (hasPet === null || canHost === null || isBothNo) return;
 
     if (hasPet) {
-      // إذا يملك حيوان (سواء يستضيف أم لا) يتجه لإدخال الحيوان أولاً
+      // If user owns a pet, navigate to AddPet screen
       navigation.navigate("AddPet", { ...route.params, hasPet, canHost });
     } else if (canHost) {
-      // يملك فقط قدرة استضافة
+      // Only can host
       navigation.navigate("HostSetup", { ...route.params, hasPet: false, canHost: true });
     }
   };
@@ -41,7 +41,7 @@ export default function OnboardingScreen({ navigation, route }: Props) {
       </Text>
 
       <View className="gap-6">
-        {/* السؤال الأول */}
+        {/* Question 1 */}
         <AppCard color="bg-white dark:bg-slate-800" className="gap-3 border border-slate-200">
           <View className="flex-row items-center gap-2">
             <Ionicons name="paw-outline" size={24} color="#2A4D75" />
@@ -58,7 +58,7 @@ export default function OnboardingScreen({ navigation, route }: Props) {
           />
         </AppCard>
 
-        {/* السؤال الثاني */}
+        {/* Question 2 */}
         <AppCard color="bg-white dark:bg-slate-800" className="gap-3 border border-slate-200">
           <View className="flex-row items-center gap-2">
             <Ionicons name="home-outline" size={24} color="#2A4D75" />
@@ -75,7 +75,7 @@ export default function OnboardingScreen({ navigation, route }: Props) {
           />
         </AppCard>
 
-        {/* تحذير عدم الأهلية عند إجابة No على السؤالين */}
+        {/* Ineligibility warning when answering No to both */}
         {isBothNo ? (
           <AppCard color="bg-[#F6D28B]/40" borderColor="border-[#EAB642]" className="gap-2">
             <Text className="text-sm font-bold text-[#2A4D75]">
