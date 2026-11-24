@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AppCard from "../../components/AppCard";
+import AppInput from "../../components/AppInput";
 import { colorPalette } from "../../constants/colors";
 import { useAuth } from "../../context/AuthContext";
 import { fetchApi } from "../../services/apiClient";
@@ -343,21 +344,21 @@ export default function HostProfileScreen({
             </Text>
           </View>
         ) : (
-          <View className="gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-700">
-            <TextInput
+          <View className="gap-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+            <AppInput
+              label="Full Name"
+              leftIcon="person-outline"
               value={nameInput}
               onChangeText={setNameInput}
               placeholder="Full name"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
-            <TextInput
+            <AppInput
+              label="Phone Number"
+              leftIcon="call-outline"
               value={phoneInput}
               onChangeText={setPhoneInput}
               placeholder="Phone (09XXXXXXXX)"
               keyboardType="phone-pad"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
 
             <View className="flex-row gap-2">
@@ -365,36 +366,36 @@ export default function HostProfileScreen({
                 <TouchableOpacity
                   key={pt}
                   onPress={() => setPlaceTypeInput(pt)}
-                  className={`flex-1 py-2 rounded-xl border items-center ${
+                  className={`flex-1 py-3 rounded-xl border items-center ${
                     placeTypeInput === pt
                       ? "bg-[#2A4D75] border-[#2A4D75]"
-                      : "bg-slate-50 border-slate-200"
+                      : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
                   }`}
                 >
                   <Text
                     className={`text-xs font-bold ${
-                      placeTypeInput === pt ? "text-white" : "text-[#2A4D75]"
+                      placeTypeInput === pt ? "text-white" : "text-[#2A4D75] dark:text-slate-200"
                     }`}
                   >
-                    {pt}
+                    {pt === "home" ? "🏠 Home" : "🛖 Barn"}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            <TextInput
+            <AppInput
+              label="Address"
+              leftIcon="location-outline"
               value={addressInput}
               onChangeText={setAddressInput}
               placeholder="Address"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
-            <TextInput
+            <AppInput
+              label="Accepted Pet Types"
+              leftIcon="paw-outline"
               value={acceptedPetInput}
               onChangeText={setAcceptedPetInput}
               placeholder="Accepted pet type"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
 
             <View className="flex-row gap-2">
@@ -402,51 +403,51 @@ export default function HostProfileScreen({
                 <TouchableOpacity
                   key={pr}
                   onPress={() => setPricingTypeInput(pr)}
-                  className={`flex-1 py-2 rounded-xl border items-center ${
+                  className={`flex-1 py-3 rounded-xl border items-center ${
                     pricingTypeInput === pr
-                      ? "bg-[#EAB642] border-[#EAB642]"
-                      : "bg-slate-50 border-slate-200"
+                      ? "bg-[#EFBB44] border-[#EFBB44]"
+                      : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
                   }`}
                 >
                   <Text
-                    className={`text-xs font-bold ${
-                      pricingTypeInput === pr ? "text-white" : "text-[#2A4D75]"
+                    className={`text-xs font-extrabold ${
+                      pricingTypeInput === pr ? "text-slate-900" : "text-[#2A4D75] dark:text-slate-200"
                     }`}
                   >
-                    {pr}
+                    {pr === "free" ? "Free" : "Paid"}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {pricingTypeInput === "paid" ? (
-              <TextInput
+              <AppInput
+                label="Daily Price (SYP)"
+                leftIcon="cash-outline"
                 value={dailyPriceInput}
                 onChangeText={setDailyPriceInput}
                 placeholder="Daily price (SYP)"
                 keyboardType="numeric"
-                placeholderTextColor="#94A3B8"
-                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
               />
             ) : null}
 
-            <TextInput
+            <AppInput
+              label="Food Cost"
+              leftIcon="restaurant-outline"
               value={foodCostInput}
               onChangeText={setFoodCostInput}
               placeholder="Food cost (number or Not needed)"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
 
             <TouchableOpacity
               onPress={handleSaveProfile}
               disabled={saving}
-              className="py-2.5 rounded-xl bg-[#EAB642] items-center"
+              className="py-3.5 rounded-xl bg-[#EFBB44] items-center mt-1"
             >
               {saving ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color="#0F172A" />
               ) : (
-                <Text className="text-xs font-extrabold text-white">
+                <Text className="text-xs font-extrabold text-slate-900">
                   Save Changes
                 </Text>
               )}

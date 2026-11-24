@@ -159,6 +159,7 @@ export default function AddPetScreen({ navigation, route }: Props) {
         <AppInput
           label="Pet name"
           placeholder="e.g. Luna"
+          leftIcon="paw-outline"
           value={petName}
           onChangeText={setPetName}
           color="bg-white"
@@ -166,6 +167,8 @@ export default function AddPetScreen({ navigation, route }: Props) {
 
         <AppInput
           label="Last vet visit"
+          leftIcon="calendar-outline"
+          placeholder="DD-MM-YYYY"
           value={lastVetVisit}
           onChangeText={setLastVetVisit}
           color="bg-white"
@@ -192,8 +195,8 @@ export default function AddPetScreen({ navigation, route }: Props) {
         <AppButton
           title="Save pet & continue  →"
           onPress={handleSave}
-          color="bg-[#EAB642]"
-          textColor="text-white"
+          color="bg-[#EFBB44]"
+          textColor="text-slate-900"
           className="mt-2"
         />
       </View>

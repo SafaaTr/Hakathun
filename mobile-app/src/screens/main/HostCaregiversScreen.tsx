@@ -3,17 +3,23 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator 
 import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "../../components/SearchBar";
 import AppCard from "../../components/AppCard";
+import AppInput from "../../components/AppInput";
 import { colorPalette } from "../../constants/colors";
 import { useAuth } from "../../context/AuthContext";
 import { fetchApi } from "../../services/apiClient";
 
+type PlaceType = "home" | "barn";
+type PricingType = "free" | "paid";
+
+type HostCaregiverItem = CaregiverItem;
+
 interface CaregiverItem {
   id: string;
   name: string;
-  placeType: "home" | "barn";
+  placeType: PlaceType;
   address: string;
   acceptedPetType: string;
-  pricingType: "free" | "paid";
+  pricingType: PricingType;
   dailyPrice: number | null;
   foodCost: string;
   status: "available" | "unavailable";
@@ -139,7 +145,7 @@ export default function HostCaregiversScreen() {
         method: "POST",
         body: JSON.stringify({
           hostUserId: hostId,
-          petId: user?.pet?._id || user?.pet?.id,
+          petId: (user?.pet as any)?._id || user?.pet?.id,
           startDate: startDate.trim(),
           endDate: endDate.trim(),
           foodNotes: foodNotes.trim(),
@@ -264,37 +270,34 @@ export default function HostCaregiversScreen() {
             </TouchableOpacity>
 
             {isFormOpen ? (
-              <View className="gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-700">
-                <TextInput
+              <View className="gap-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+                <AppInput
+                  leftIcon="calendar-outline"
                   value={startDate}
                   onChangeText={setStartDate}
                   placeholder="Start date (YYYY-MM-DD)"
-                  placeholderTextColor="#94A3B8"
-                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
                 />
-                <TextInput
+                <AppInput
+                  leftIcon="calendar-outline"
                   value={endDate}
                   onChangeText={setEndDate}
                   placeholder="End date (YYYY-MM-DD)"
-                  placeholderTextColor="#94A3B8"
-                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
                 />
-                <TextInput
+                <AppInput
+                  leftIcon="restaurant-outline"
                   value={foodNotes}
                   onChangeText={setFoodNotes}
                   placeholder="Food notes"
-                  placeholderTextColor="#94A3B8"
-                  className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
                 />
                 <TouchableOpacity
                   disabled={isSubmitting}
                   onPress={() => handleSubmitHostingRequest(cg.id, cg.name)}
-                  className="py-2.5 rounded-xl bg-[#2A4D75] items-center"
+                  className="py-3.5 rounded-xl bg-[#EFBB44] items-center mt-1"
                 >
                   {isSubmitting ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
+                    <ActivityIndicator size="small" color="#0F172A" />
                   ) : (
-                    <Text className="text-xs font-bold text-white">
+                    <Text className="text-xs font-extrabold text-slate-900">
                       Submit Hosting Request
                     </Text>
                   )}

@@ -15,7 +15,7 @@ export default function SearchBar({
   placeholder = "Search...",
 }: SearchBarProps) {
   return (
-    <View className="flex-row items-center bg-white dark:bg-[#1E2733] border border-slate-200 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 gap-2.5">
+    <View className="flex-row items-center bg-white dark:bg-[#1E2733] border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3.5 gap-2.5 min-h-[50px]">
       <Ionicons
         name="search-outline"
         size={20}

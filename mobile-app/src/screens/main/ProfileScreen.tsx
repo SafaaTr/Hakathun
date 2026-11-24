@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import AppCard from "../../components/AppCard";
+import AppInput from "../../components/AppInput";
 import { colorPalette } from "../../constants/colors";
 import { useAuth } from "../../context/AuthContext";
 import { updateOwnerProfile } from "../../services/authService";
@@ -384,17 +385,34 @@ export default function ProfileScreen({
         </View>
 
         {isEditingOwner ? (
-          <View className="gap-2.5 pt-1">
-            <TextInput value={ownerNameInput} onChangeText={setOwnerNameInput} placeholder="Full name" placeholderTextColor="#94A3B8" className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75]" />
-            <TextInput value={ownerPhoneInput} onChangeText={setOwnerPhoneInput} placeholder="Phone (09XXXXXXXX)" keyboardType="phone-pad" maxLength={10} placeholderTextColor="#94A3B8" className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75]" />
-            <TextInput value={ownerLocationInput} onChangeText={setOwnerLocationInput} placeholder="Location / address" placeholderTextColor="#94A3B8" className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75]" />
-            <TouchableOpacity onPress={pickOwnerAvatar} activeOpacity={0.8} className="py-2.5 rounded-xl bg-slate-50 border border-slate-200 items-center">
-              <Text className="text-xs font-bold text-[#2A4D75]">
+          <View className="gap-3 pt-2">
+            <AppInput
+              leftIcon="person-outline"
+              value={ownerNameInput}
+              onChangeText={setOwnerNameInput}
+              placeholder="Full name"
+            />
+            <AppInput
+              leftIcon="call-outline"
+              value={ownerPhoneInput}
+              onChangeText={setOwnerPhoneInput}
+              placeholder="Phone (09XXXXXXXX)"
+              keyboardType="phone-pad"
+              maxLength={10}
+            />
+            <AppInput
+              leftIcon="location-outline"
+              value={ownerLocationInput}
+              onChangeText={setOwnerLocationInput}
+              placeholder="Location / address"
+            />
+            <TouchableOpacity onPress={pickOwnerAvatar} activeOpacity={0.8} className="py-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 items-center">
+              <Text className="text-xs font-bold text-[#2A4D75] dark:text-slate-200">
                 {ownerAvatarInput ? "Change profile photo" : "Add profile photo"}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => void handleSaveOwnerProfile()} disabled={savingOwner} className={`py-3 rounded-xl items-center ${savingOwner ? "bg-slate-400" : "bg-[#EAB642]"}`}>
-              <Text className="text-xs font-extrabold text-white">{savingOwner ? "Saving..." : "Save Profile"}</Text>
+            <TouchableOpacity onPress={() => void handleSaveOwnerProfile()} disabled={savingOwner} className={`py-3.5 rounded-xl items-center ${savingOwner ? "bg-slate-400" : "bg-[#EFBB44]"}`}>
+              <Text className="text-xs font-extrabold text-slate-900">{savingOwner ? "Saving..." : "Save Profile"}</Text>
             </TouchableOpacity>
           </View>
         ) : null}
@@ -464,35 +482,31 @@ export default function ProfileScreen({
             </Text>
           )
         ) : (
-          <View className="gap-2.5 pt-1">
-            <TextInput
+          <View className="gap-3 pt-2">
+            <AppInput
+              leftIcon="paw-outline"
               value={petNameInput}
               onChangeText={setPetNameInput}
               placeholder="Pet name (e.g. Luna, Max)"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
-            <TextInput
+            <AppInput
+              leftIcon="pricetag-outline"
               value={petTypeInput}
               onChangeText={setPetTypeInput}
               placeholder="Pet type (e.g. Cat, Dog)"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
-            <TextInput
+            <AppInput
+              leftIcon="time-outline"
               value={ageInput}
               onChangeText={setAgeInput}
               placeholder="Age (numeric)"
               keyboardType="numeric"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
-            <TextInput
+            <AppInput
+              leftIcon="calendar-outline"
               value={lastVetVisitInput}
               onChangeText={setLastVetVisitInput}
               placeholder="Last vet visit date (DD-MM-YYYY)"
-              placeholderTextColor="#94A3B8"
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
             />
             <TouchableOpacity
               onPress={pickVaccinationPdf}
@@ -528,9 +542,9 @@ export default function ProfileScreen({
             <TouchableOpacity
               onPress={handleSavePet}
               disabled={savingPet}
-              className="py-2.5 rounded-xl bg-[#EAB642] items-center"
+              className={`py-3.5 rounded-xl items-center ${savingPet ? "bg-slate-400" : "bg-[#EFBB44]"}`}
             >
-              <Text className="text-xs font-extrabold text-white">
+              <Text className="text-xs font-extrabold text-slate-900">
                 {savingPet ? "Saving..." : "Save Pet"}
               </Text>
             </TouchableOpacity>

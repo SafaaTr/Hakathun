@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "../../components/SearchBar";
 import AppCard from "../../components/AppCard";
 import AppButton from "../../components/AppButton";
+import AppInput from "../../components/AppInput";
 import { colorPalette } from "../../constants/colors";
 import { fetchApi } from "../../services/apiClient";
 
@@ -352,15 +353,14 @@ export default function StoresScreen() {
                   Total: {(Number(totalPrice) || 0).toLocaleString()} SYP
                 </Text>
 
-                <TextInput
+                <AppInput
+                  leftIcon="location-outline"
                   value={deliveryAddress}
                   onChangeText={(txt) => {
                     setDeliveryAddress(txt);
                     if (checkoutError) setCheckoutError("");
                   }}
                   placeholder="Delivery address *"
-                  placeholderTextColor="#94A3B8"
-                  className="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm text-[#2A4D75]"
                 />
 
                 <Text className="text-xs font-bold text-[#557FB3]">
@@ -375,8 +375,9 @@ export default function StoresScreen() {
               title={checkoutLoading ? "Placing Order..." : "Confirm Purchase"}
               disabled={checkoutLoading}
               onPress={handleConfirmPurchase}
-              color="bg-[#EAB642]"
-              textColor="text-white"
+              color="bg-[#EFBB44]"
+              textColor="text-slate-900"
+              textClassName="font-extrabold text-base"
             />
           ) : null}
         </View>

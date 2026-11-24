@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AppCard from "../../components/AppCard";
+import AppInput from "../../components/AppInput";
 import { colorPalette } from "../../constants/colors";
 import { useAuth } from "../../context/AuthContext";
 import { fetchApi } from "../../services/apiClient";
@@ -262,96 +263,75 @@ export default function VetProfileScreen({
               Edit Doctor Information
             </Text>
 
-            <View>
-              <Text className="text-[11px] font-semibold text-slate-500 mb-1">Doctor Name / الاسم</Text>
-              <TextInput
-                value={nameInput}
-                onChangeText={setNameInput}
-                placeholder="Dr. Name"
-                placeholderTextColor="#94A3B8"
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75] dark:text-white"
-              />
-            </View>
+            <AppInput
+              label="Doctor Name / الاسم"
+              leftIcon="person-outline"
+              value={nameInput}
+              onChangeText={setNameInput}
+              placeholder="Dr. Name"
+            />
 
-            <View>
-              <Text className="text-[11px] font-semibold text-slate-500 mb-1">Phone Number / رقم الهاتف</Text>
-              <TextInput
-                value={phoneInput}
-                onChangeText={setPhoneInput}
-                placeholder="09XXXXXXXX"
-                keyboardType="phone-pad"
-                placeholderTextColor="#94A3B8"
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75] dark:text-white"
-              />
-            </View>
+            <AppInput
+              label="Phone Number / رقم الهاتف"
+              leftIcon="call-outline"
+              value={phoneInput}
+              onChangeText={setPhoneInput}
+              placeholder="09XXXXXXXX"
+              keyboardType="phone-pad"
+            />
 
-            <View>
-              <Text className="text-[11px] font-semibold text-slate-500 mb-1">Clinic Name / اسم العيادة</Text>
-              <TextInput
-                value={clinicInput}
-                onChangeText={setClinicInput}
-                placeholder="Clinic name"
-                placeholderTextColor="#94A3B8"
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75] dark:text-white"
-              />
-            </View>
+            <AppInput
+              label="Clinic Name / اسم العيادة"
+              leftIcon="medkit-outline"
+              value={clinicInput}
+              onChangeText={setClinicInput}
+              placeholder="Clinic name"
+            />
 
-            <View>
-              <Text className="text-[11px] font-semibold text-slate-500 mb-1">Clinic Address / عنوان العيادة</Text>
-              <TextInput
-                value={addressInput}
-                onChangeText={setAddressInput}
-                placeholder="Clinic address"
-                placeholderTextColor="#94A3B8"
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75] dark:text-white"
-              />
-            </View>
+            <AppInput
+              label="Clinic Address / عنوان العيادة"
+              leftIcon="location-outline"
+              value={addressInput}
+              onChangeText={setAddressInput}
+              placeholder="Clinic address"
+            />
 
-            <View>
-              <Text className="text-[11px] font-semibold text-slate-500 mb-1">Specialization / التخصص</Text>
-              <TextInput
-                value={specializationInput}
-                onChangeText={setSpecializationInput}
-                placeholder="e.g. Surgery, Vaccination"
-                placeholderTextColor="#94A3B8"
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75] dark:text-white"
-              />
-            </View>
+            <AppInput
+              label="Specialization / التخصص"
+              leftIcon="ribbon-outline"
+              value={specializationInput}
+              onChangeText={setSpecializationInput}
+              placeholder="e.g. Surgery, Vaccination"
+            />
 
-            <View>
-              <Text className="text-[11px] font-semibold text-slate-500 mb-1">Consultation Price (SYP) / سعر الكشفية</Text>
-              <TextInput
-                value={priceInput}
-                onChangeText={setPriceInput}
-                placeholder="Price in SYP"
-                keyboardType="numeric"
-                placeholderTextColor="#94A3B8"
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75] dark:text-white"
-              />
-            </View>
+            <AppInput
+              label="Consultation Price (SYP) / سعر الكشفية"
+              leftIcon="cash-outline"
+              value={priceInput}
+              onChangeText={setPriceInput}
+              placeholder="Price in SYP"
+              keyboardType="numeric"
+            />
 
-            <View>
-              <Text className="text-[11px] font-semibold text-slate-500 mb-1">Bio / نبذة تعريفية</Text>
-              <TextInput
-                value={bioInput}
-                onChangeText={setBioInput}
-                placeholder="Doctor Bio"
-                placeholderTextColor="#94A3B8"
-                multiline
-                numberOfLines={3}
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-[#2A4D75] dark:text-white"
-              />
-            </View>
+            <AppInput
+              label="Bio / نبذة تعريفية"
+              leftIcon="document-text-outline"
+              value={bioInput}
+              onChangeText={setBioInput}
+              placeholder="Doctor Bio"
+              multiline
+              numberOfLines={3}
+            />
 
             <TouchableOpacity
               onPress={() => void handleSave()}
               disabled={saving}
               className={`py-3.5 rounded-xl items-center flex-row justify-center gap-2 ${
-                saving ? "bg-slate-400" : "bg-[#EAB642]"
+                saving ? "bg-slate-400" : "bg-[#EFBB44]"
               }`}
             >
-              <Ionicons name="save-outline" size={18} color="#FFFFFF" />
-              <Text className="text-xs font-extrabold text-white">
+              <Ionicons name="save-outline" size={18} color="#0F172A" />
+              <Text className="text-xs font-extrabold text-slate-900">
                 {saving ? "Saving Changes..." : "حفظ التعديلات (Save Changes)"}
               </Text>
             </TouchableOpacity>

@@ -43,9 +43,22 @@ export default function HostSetupScreen({ navigation }: Props) {
           onSelect={setPlaceType}
         />
 
-        <AppInput label="Address" placeholder="e.g. Abu Rummaneh, Damascus" value={address} onChangeText={setAddress} color="bg-white" />
+        <AppInput
+          label="Address"
+          leftIcon="location-outline"
+          placeholder="e.g. Abu Rummaneh, Damascus"
+          value={address}
+          onChangeText={setAddress}
+          color="bg-white"
+        />
 
-        <AppInput label="Pet types you can host" value={acceptedPetType} onChangeText={setAcceptedPetType} color="bg-white" />
+        <AppInput
+          label="Pet types you can host"
+          leftIcon="paw-outline"
+          value={acceptedPetType}
+          onChangeText={setAcceptedPetType}
+          color="bg-white"
+        />
 
         <AppRadioButton
           label="Your hosting rate"
@@ -61,6 +74,7 @@ export default function HostSetupScreen({ navigation }: Props) {
           <View className="flex-row gap-3">
             <AppInput
               label="Daily price - SYP"
+              leftIcon="cash-outline"
               value={dailyPrice}
               onChangeText={setDailyPrice}
               keyboardType="numeric"
@@ -69,6 +83,7 @@ export default function HostSetupScreen({ navigation }: Props) {
             />
             <AppInput
               label="Food / day - SYP"
+              leftIcon="restaurant-outline"
               value={foodCost}
               onChangeText={setFoodCost}
               className="flex-1"
@@ -77,7 +92,7 @@ export default function HostSetupScreen({ navigation }: Props) {
           </View>
         ) : null}
 
-        <AppButton title="Become a host  ♡" onPress={handleFinish} color="bg-[#EAB642]" textColor="text-white" className="mt-4" />
+        <AppButton title="Become a host  ♡" onPress={handleFinish} color="bg-[#EFBB44]" textColor="text-slate-900" className="mt-4" />
       </View>
     </ScrollView>
   );

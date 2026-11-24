@@ -91,8 +91,8 @@ export default function OnboardingScreen({ navigation, route }: Props) {
           title="Choose a role to continue  →"
           onPress={handleNext}
           disabled={hasPet === null || canHost === null || isBothNo}
-          color="bg-[#EAB642]"
-          textColor="text-white"
+          color="bg-[#EFBB44]"
+          textColor="text-slate-900"
           className="mt-4"
         />
       </View>
