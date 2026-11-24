@@ -21,7 +21,7 @@ export default function AdminPetOwnersPage() {
     <div className="space-y-7 max-w-7xl mx-auto">
       <div>
         <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-          Pet Owners (أصحاب الحيوانات)
+          Pet Owners
         </h1>
         <p className="text-sm text-muted">
           Registered pet owners, registered companions, and app usage details.

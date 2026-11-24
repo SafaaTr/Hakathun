@@ -397,4 +397,22 @@ export const adminService = {
     } catch {}
     return mockOwners;
   },
+
+  // Platform Orders (Super Admin Oversight)
+  async getOrders(): Promise<any[]> {
+    try {
+      const res = await api.get<ApiResponse<any[]>>("/admin/orders");
+      if (res.data?.data) return res.data.data;
+    } catch {}
+    return [];
+  },
+
+  // Platform KPIs
+  async getPlatformStats(): Promise<any> {
+    try {
+      const res = await api.get<ApiResponse<any>>("/admin/stats");
+      if (res.data?.data) return res.data.data;
+    } catch {}
+    return null;
+  },
 };

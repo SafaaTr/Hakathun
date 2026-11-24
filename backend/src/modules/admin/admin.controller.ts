@@ -126,4 +126,11 @@ export class AdminController {
       data: store,
     };
   }
+
+  // Orders (Super Admin Oversight)
+  @Get('orders')
+  @ApiOperation({ summary: 'Platform-wide store purchase orders for Super Admin' })
+  async getOrders() {
+    return this.adminService.getAllOrders();
+  }
 }

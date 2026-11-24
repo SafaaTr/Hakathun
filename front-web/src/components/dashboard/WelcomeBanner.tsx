@@ -1,14 +1,16 @@
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Store, Stethoscope, Users } from "lucide-react";
 
 interface WelcomeBannerProps {
   storeName?: string;
   location?: string;
+  isAdmin?: boolean;
 }
 
 export function WelcomeBanner({
   storeName = "Happy Paws Pet Store",
   location = "Al-Mazzeh, Damascus",
+  isAdmin = false,
 }: WelcomeBannerProps) {
   return (
     <div className="relative overflow-hidden bg-yellow rounded-3xl p-8 lg:p-10 shadow-sm border border-yellow-hover/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 select-none">
@@ -18,20 +20,48 @@ export function WelcomeBanner({
       {/* Left content */}
       <div className="relative z-10 space-y-3 max-w-xl">
         <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          A good day to care for pets.
+          {isAdmin ? "Rafeeq Central Administration" : "A good day to care for pets."}
         </h2>
         <p className="text-sm font-semibold text-slate-800/80">
-          {storeName} · {location}
+          {isAdmin
+            ? "Unified platform management · Stores, Veterinarians, Hosts & Owners"
+            : `${storeName} · ${location}`}
         </p>
 
-        <div className="pt-2">
-          <Link
-            href="/dashboard/products"
-            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white text-slate-900 font-bold text-sm shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
-          >
-            <ShoppingBag className="w-4 h-4 text-navy" />
-            <span>Manage products</span>
-          </Link>
+        <div className="pt-2 flex flex-wrap gap-2.5">
+          {isAdmin ? (
+            <>
+              <Link
+                href="/dashboard/admin/stores"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <Store className="w-3.5 h-3.5 text-navy" />
+                <span>Manage Stores</span>
+              </Link>
+              <Link
+                href="/dashboard/admin/doctors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <Stethoscope className="w-3.5 h-3.5 text-navy" />
+                <span>Manage Doctors</span>
+              </Link>
+              <Link
+                href="/dashboard/admin/hosts"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <Users className="w-3.5 h-3.5 text-navy" />
+                <span>Manage Hosts</span>
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/dashboard/products"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white text-slate-900 font-bold text-sm shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <ShoppingBag className="w-4 h-4 text-navy" />
+              <span>Manage products</span>
+            </Link>
+          )}
         </div>
       </div>
 

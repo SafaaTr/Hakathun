@@ -315,6 +315,10 @@ export class AuthService implements OnModuleInit {
 
     if (dto.name) user.name = dto.name.trim();
     if (dto.phone) user.phone = dto.phone.trim();
+    if (dto.password && dto.password.trim().length >= 8) {
+      const salt = await bcrypt.genSalt(10);
+      user.passwordHash = await bcrypt.hash(dto.password.trim(), salt);
+    }
     await user.save();
 
     const primaryRole = user.roles && user.roles.length > 0 ? user.roles[0] : 'pet_owner';

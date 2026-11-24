@@ -91,7 +91,7 @@ export default function AdminHostsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-            Host Caregivers (المربين المستضيفين)
+            Host Caregivers
           </h1>
           <p className="text-sm text-muted">
             Verified pet hosts offering temporary boarding during travels.
@@ -140,7 +140,7 @@ export default function AdminHostsPage() {
                       </div>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-cream border border-card-border text-navy uppercase">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300 dark:border-amber-400/30 border border-amber-500/30 uppercase shadow-xs">
                     {host.placeType}
                   </span>
                 </div>

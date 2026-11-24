@@ -340,4 +340,9 @@ export class AdminService {
       hostBookingsCount,
     };
   }
+
+  // 6. Platform Orders (Admin Supervision)
+  async getAllOrders() {
+    return this.orderModel.find().sort({ createdAt: -1 }).limit(30).exec();
+  }
 }

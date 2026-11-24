@@ -9,6 +9,10 @@ export class UpdateProfileDto {
   @IsString()
   phone?: string;
 
+  @IsOptional()
+  @IsString()
+  password?: string;
+
   // Vet & Host fields
   @IsOptional()
   @IsString()
