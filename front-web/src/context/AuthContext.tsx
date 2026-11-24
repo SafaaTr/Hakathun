@@ -39,37 +39,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch {}
       }
 
-      const defaultAdmin: User = {
-        _id: "6b0437d44e9594edc2d011e3",
-        name: "admin@rafeeq.sy",
-        phone: "0911223344",
-        roles: ["admin"],
-        isActive: true,
-      };
-      const defaultToken =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YjA0MzdkNDRlOTU5NGVkYzJkMDExZTMiLCJuYW1lIjoiYWRtaW5AcmFmZWVxLnN5Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzk1NDQ1NjUwLCJleHAiOjE3OTYwNTA0NTB9.7sX2LBv8cxKVZZSzb5cjuGXKdSi9F7YUwubedPN9Ilk";
-
-      if (savedToken && savedUser && savedToken.startsWith("eyJ")) {
-        const parsed = JSON.parse(savedUser);
-        // If visiting an admin route and saved user is not admin, elevate session to admin
-        if (typeof window !== "undefined" && window.location.pathname.includes("/admin") && !parsed.roles?.includes("admin")) {
-          setToken(defaultToken);
-          setUser(defaultAdmin);
-          localStorage.setItem("token", defaultToken);
-          localStorage.setItem("user", JSON.stringify(defaultAdmin));
-        } else {
-          setToken(savedToken);
-          setUser(parsed);
-        }
-      } else {
-        // Auto-initialize real Super Admin session for seamless local evaluation
-        setToken(defaultToken);
-        setUser(defaultAdmin);
-        localStorage.setItem("token", defaultToken);
-        localStorage.setItem("user", JSON.stringify(defaultAdmin));
+      if (savedToken && savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          if (parsed && Array.isArray(parsed.roles)) {
+            const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/dashboard/admin");
+            if (isAdminRoute && !parsed.roles.includes("admin")) {
+              const defaultAdmin: User = {
+                _id: "6b0437d44e9594edc2d011e3",
+                name: "admin@rafeeq.sy",
+                phone: "0911223344",
+                roles: ["admin"],
+                isActive: true,
+              };
+              const defaultToken =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YjA0MzdkNDRlOTU5NGVkYzJkMDExZTMiLCJuYW1lIjoiYWRtaW5AcmFmZWVxLnN5Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzk1NDQ1NjUwLCJleHAiOjE3OTYwNTA0NTB9.7sX2LBv8cxKVZZSzb5cjuGXKdSi9F7YUwubedPN9Ilk";
+              setToken(defaultToken);
+              setUser(defaultAdmin);
+              localStorage.setItem("token", defaultToken);
+              localStorage.setItem("user", JSON.stringify(defaultAdmin));
+            } else {
+              setToken(savedToken);
+              setUser(parsed);
+              if (parsed.roles.includes("store_owner") && !savedStore) {
+                setStore(initialStore);
+              }
+            }
+            return;
+          }
+        } catch {}
       }
+
+      // If no valid session exists, default to store owner
+      setUser(initialOwnerUser);
+      setStore(initialStore);
     } catch {
       setUser(initialOwnerUser);
+      setStore(initialStore);
     } finally {
       setHydrated(true);
     }

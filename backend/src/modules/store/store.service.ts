@@ -27,7 +27,17 @@ export class StoreService implements OnModuleInit {
   }
 
   private async seedProducts() {
-    const store = await this.storeModel.findOne({ name: 'Happy Paws Pet Store' });
+    let store = await this.storeModel.findOne({
+      $or: [{ name: 'Happy Paws Pet Store' }, { status: 'active' }],
+    });
+    if (!store) {
+      store = await this.storeModel.create({
+        name: 'Happy Paws Pet Store',
+        phone: '0988776655',
+        address: 'Al-Mazzeh, Damascus',
+        status: 'active',
+      });
+    }
     if (store) {
       const count = await this.productModel.countDocuments({ storeId: store._id });
       if (count === 0) {
@@ -173,13 +183,23 @@ export class StoreService implements OnModuleInit {
 
   // Store Owner Inventory
   async addProductForStore(userId: string, dto: CreateProductDto) {
-    let store = await this.storeModel.findOne({ userId: new Types.ObjectId(userId) });
+    let store;
+    if (userId && Types.ObjectId.isValid(userId)) {
+      store = await this.storeModel.findOne({
+        $or: [
+          { userId: new Types.ObjectId(userId) },
+          { ownerId: new Types.ObjectId(userId) },
+        ],
+      });
+    }
+    if (!store) {
+      store = await this.storeModel.findOne({ status: 'active' });
+    }
     if (!store) {
       store = await this.storeModel.create({
-        userId: new Types.ObjectId(userId),
-        name: 'My Pet Store',
-        phone: '09XXXXXXXX',
-        address: 'Damascus',
+        name: 'Happy Paws Pet Store',
+        phone: '0988776655',
+        address: 'Al-Mazzeh, Damascus',
         status: 'active',
       });
     }
