@@ -8,9 +8,13 @@ let localOrders: Order[] = [...initialOrders];
 export const orderService = {
   async getOrders(): Promise<Order[]> {
     try {
-      const response = await api.get<ApiResponse<Order[]>>("/store/orders");
-      if (response.data?.data && Array.isArray(response.data.data)) {
-        return response.data.data;
+      const response = await api.get<any>("/store/orders");
+      const list =
+        response.data?.data?.data ||
+        response.data?.data ||
+        (Array.isArray(response.data) ? response.data : null);
+      if (Array.isArray(list)) {
+        return list;
       }
       return localOrders;
     } catch {

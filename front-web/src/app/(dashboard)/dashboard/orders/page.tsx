@@ -17,17 +17,23 @@ export default function PurchaseOrdersPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchOrders() {
       try {
         const data = await orderService.getOrders();
-        setOrders(data);
+        if (isMounted) setOrders(data);
       } catch (err) {
         console.error("Failed to fetch orders:", err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     }
     fetchOrders();
+    const interval = setInterval(fetchOrders, 3000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const handleStatusUpdate = async (id: string, status: OrderStatus) => {

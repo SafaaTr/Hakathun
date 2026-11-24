@@ -30,20 +30,24 @@ export default function AppButton({
 }: AppButtonProps) {
   const isDisabled = disabled || loading;
 
+  let resolvedBg = "#EFBB44";
+  if (color) {
+    if (color.startsWith("#") || color.startsWith("rgb")) {
+      resolvedBg = color;
+    } else if (color.startsWith("bg-[") && color.endsWith("]")) {
+      resolvedBg = color.slice(4, -1);
+    }
+  }
+
+  let resolvedText = "#0F172A";
+  if (textColor === "text-white" || textColor === "#FFFFFF" || textColor === "#fff") {
+    resolvedText = "#FFFFFF";
+  } else if (textColor?.startsWith("#") || textColor?.startsWith("rgb")) {
+    resolvedText = textColor;
+  }
+
   const bgClass = color?.startsWith("bg-") ? color : "";
-  const bgStyle =
-    color && !color.startsWith("bg-")
-      ? { backgroundColor: color }
-      : !color
-      ? { backgroundColor: "#EFBB44" }
-      : undefined;
-
   const txtClass = textColor?.startsWith("text-") ? textColor : "";
-  const txtStyle =
-    textColor && !textColor.startsWith("text-") ? { color: textColor } : undefined;
-
-  const loaderColor =
-    textColor && !textColor.startsWith("text-") ? textColor : "#0F172A";
 
   return (
     <TouchableOpacity
@@ -52,23 +56,22 @@ export default function AppButton({
       activeOpacity={0.85}
       style={[
         {
-          minHeight: 50,
-          backgroundColor: !bgClass && !bgStyle ? "#EFBB44" : undefined,
+          minHeight: 48,
+          backgroundColor: resolvedBg,
         },
-        bgStyle,
         style,
       ]}
-      className={`py-3.5 px-5 rounded-xl flex-row items-center justify-center shadow-xs transition-all ${bgClass} ${
+      className={`py-3 px-4 rounded-xl flex-row items-center justify-center shadow-xs transition-all ${bgClass} ${
         isDisabled ? "opacity-60" : ""
       } ${className}`}
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={loaderColor} />
+        <ActivityIndicator color={resolvedText} />
       ) : (
         <Text
-          style={txtStyle}
-          className={`text-base font-extrabold ${txtClass} ${textClassName}`}
+          style={{ color: resolvedText }}
+          className={`text-sm font-extrabold ${txtClass} ${textClassName}`}
         >
           {title}
         </Text>

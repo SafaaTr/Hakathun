@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -94,9 +94,110 @@ const MOCK_STORES: StoreItem[] = [
 ];
 
 export default function StoresScreen() {
+  const [stores, setStores] = useState<StoreItem[]>(MOCK_STORES);
+  const [loadingStores, setLoadingStores] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadBackendStores() {
+      try {
+        setLoadingStores(true);
+        const res = await fetchApi<any>("/stores");
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        if (cancelled) return;
+        if (list.length > 0) {
+          const mapped: StoreItem[] = await Promise.all(
+            list.map(async (st: any) => {
+              const storeId = st._id || st.id;
+              let products: StoreProduct[] = [];
+              try {
+                const prodRes = await fetchApi<any>(`/stores/${storeId}/products`);
+                const prodList = Array.isArray(prodRes?.data) ? prodRes.data : Array.isArray(prodRes) ? prodRes : [];
+                if (prodList.length > 0) {
+                  products = prodList.map((p: any) => ({
+                    id: p._id || p.id,
+                    storeId,
+                    name: p.name,
+                    details: p.details || "",
+                    price: Number(p.price) || 0,
+                    imageUrl:
+                      p.imageUrl ||
+                      "https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=400",
+                    status: p.status || "available",
+                  }));
+                }
+              } catch {}
+
+              if (products.length === 0) {
+                products = [
+                  {
+                    id: `${storeId}_p1`,
+                    storeId,
+                    name: "Royal Canin Mini Adult (3kg)",
+                    details: "Premium balanced nutrition for adult dogs.",
+                    price: 150000,
+                    imageUrl: "https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=400",
+                    status: "available",
+                  },
+                  {
+                    id: `${storeId}_p2`,
+                    storeId,
+                    name: "Purina Pro Plan Cat Salmon",
+                    details: "High-protein dry cat food rich in omega fatty acids.",
+                    price: 120000,
+                    imageUrl: "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400",
+                    status: "available",
+                  },
+                  {
+                    id: `${storeId}_p3`,
+                    storeId,
+                    name: "Ergonomic Reflective Dog Harness",
+                    details: "Breathable padded vest harness.",
+                    price: 65000,
+                    imageUrl: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400",
+                    status: "available",
+                  },
+                  {
+                    id: `${storeId}_p4`,
+                    storeId,
+                    name: "Stainless Steel Pet Bowl",
+                    details: "Durable anti-slip food & water bowl.",
+                    price: 35000,
+                    imageUrl: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=400",
+                    status: "available",
+                  },
+                ];
+              }
+
+              return {
+                id: storeId,
+                name: st.name || "Happy Paws Pet Store",
+                address: st.address || "Damascus",
+                status: st.status || "active",
+                products,
+              };
+            })
+          );
+          if (!cancelled && mapped.length > 0) {
+            setStores(mapped);
+            setSelectedStoreId(mapped[0]?.id || "");
+          }
+        }
+      } catch (err) {
+        // Keep mock stores on network error
+      } finally {
+        if (!cancelled) setLoadingStores(false);
+      }
+    }
+    void loadBackendStores();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const activeStores = useMemo(
-    () => MOCK_STORES.filter((s) => s.status === "active"),
-    []
+    () => stores.filter((s) => s.status === "active"),
+    [stores]
   );
 
   const [selectedStoreId, setSelectedStoreId] = useState<string>(
@@ -164,11 +265,12 @@ export default function StoresScreen() {
 
     setCheckoutLoading(true);
     try {
+      const targetStoreId = selectedStore?.id || "6b0437d44e9594edc2d011eb";
       await fetchApi<any>("/orders/checkout", {
         method: "POST",
         body: JSON.stringify({
           deliveryAddress: deliveryAddress.trim(),
-          storeId: selectedStore?.id || "6b0437d44e9594edc2d011eb",
+          storeId: targetStoreId,
           items: cart.map((item) => ({
             productId: item.id,
             productName: item.name,
@@ -178,7 +280,7 @@ export default function StoresScreen() {
         }),
       });
 
-      setCheckoutSuccess("Your order has been placed (Cash on Delivery).");
+      setCheckoutSuccess("Order placed successfully! Sent to store dashboard for confirmation.");
       setCart([]);
       setDeliveryAddress("");
       setIsCartOpen(false);
@@ -293,13 +395,17 @@ export default function StoresScreen() {
               <Text className="text-sm font-extrabold text-[#557FB3]">
                 {(Number(prod.price) || 0).toLocaleString()} SYP
               </Text>
-              <AppButton
-                title="Add to cart"
+              <TouchableOpacity
                 onPress={() => addToCart(prod)}
-                color="bg-[#EAB642]"
-                textColor="text-white"
-                className="py-2"
-              />
+                activeOpacity={0.8}
+                style={{ backgroundColor: "#EFBB44" }}
+                className="w-full py-2.5 px-3 rounded-xl flex-row items-center justify-center gap-1.5 mt-1 shadow-xs active:scale-95"
+              >
+                <Ionicons name="cart-outline" size={16} color="#0F172A" />
+                <Text className="text-xs font-extrabold text-slate-900">
+                  Add to cart
+                </Text>
+              </TouchableOpacity>
             </AppCard>
           ))}
         </View>
