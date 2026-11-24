@@ -76,10 +76,10 @@ export function OrderDetailsModal({
         {/* Purchased Items List */}
         <div className="space-y-3">
           <p className="text-xs font-bold text-muted uppercase tracking-wider">
-            Items in Cart ({order.items.length})
+            Items in Cart ({(order.items || []).length})
           </p>
           <div className="divide-y divide-card-border border border-card-border rounded-xl overflow-hidden">
-            {order.items.map((item, idx) => (
+            {(order.items || []).map((item, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between p-3.5 text-xs bg-card hover:bg-cream/20 transition-colors"
@@ -90,10 +90,10 @@ export function OrderDetailsModal({
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">
-                      {item.productName}
+                      {item.productName || "Product"}
                     </p>
                     <p className="text-[11px] text-muted">
-                      Qty: {item.quantity} × {(Number(item.unitPrice) || 0).toLocaleString()} SYP
+                      Qty: {item.quantity || 1} × {(Number(item.unitPrice) || 0).toLocaleString()} SYP
                     </p>
                   </div>
                 </div>

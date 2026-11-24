@@ -188,6 +188,13 @@ export default function DoctorsScreen() {
     );
   }, [searchQuery, doctors]);
 
+  const displayedDoctors = useMemo(() => {
+    if (searchQuery.trim()) {
+      return filteredDoctors;
+    }
+    return filteredDoctors.slice(0, 3);
+  }, [filteredDoctors, searchQuery]);
+
   const activeDoctor = useMemo(() => {
     return (
       filteredDoctors.find((d) => d.id === selectedDoctorId) ||
@@ -300,71 +307,27 @@ export default function DoctorsScreen() {
         </View>
       ) : null}
 
-      {/* Doctors list */}
-      <View className="gap-3">
-        {filteredDoctors.map((doc) => {
-          const isSelectedDoc = activeDoctor?.id === doc.id;
-          const ratingText =
-            doc.ratingsCount && doc.ratingsCount > 0 && typeof doc.avgRating === "number"
-              ? `${doc.avgRating.toFixed(1)} (${doc.ratingsCount})`
-              : "No ratings yet";
-
-          return (
-            <TouchableOpacity
-              key={doc.id}
-              activeOpacity={0.85}
-              onPress={() => {
-                setSelectedDoctorId(doc.id);
-                setSelectedSlotId(null);
-                setStatusMessage("");
-              }}
-            >
-              <AppCard
-                color="bg-white dark:bg-[#1E2733]"
-                borderColor={
-                  isSelectedDoc ? "border-[#EAB642]" : "border-slate-200 dark:border-slate-700"
-                }
-                className="gap-2"
-              >
-                <View className="flex-row items-center gap-3">
-                  <View className="w-10 h-10 rounded-2xl bg-[#E4EAF1] dark:bg-slate-800 items-center justify-center">
-                    <Ionicons
-                      name="medkit"
-                      size={20}
-                      color={colorPalette.navyDark}
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-base font-extrabold text-[#2A4D75] dark:text-white">
-                      {doc.name}
-                    </Text>
-                    <Text className="text-xs text-slate-500">
-                      {doc.specialty} • {doc.address}
-                    </Text>
-                  </View>
-                  <Text className="text-xs font-extrabold text-[#557FB3]">
-                    {(Number(doc.price) || 0).toLocaleString()} SYP
-                  </Text>
-                </View>
-
-                <Text className="text-xs font-bold text-[#557FB3]">
-                  {ratingText}
-                </Text>
-              </AppCard>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-    
+      {/* 1. Time Selection Card (اختيار الوقت المناسب) placed at the top */}
       {activeDoctor ? (
         <AppCard
           color="bg-white dark:bg-[#1E2733]"
-          className="gap-3 border border-slate-200 dark:border-slate-700"
+          className="gap-3 border border-slate-200 dark:border-slate-700 shadow-sm"
         >
-          <Text className="text-base font-extrabold text-[#2A4D75] dark:text-white">
-            {activeDoctor.name} — Weekly Slots
-          </Text>
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-xs uppercase font-bold text-[#557FB3]">
+                اختيار الوقت المناسب
+              </Text>
+              <Text className="text-base font-extrabold text-[#2A4D75] dark:text-white">
+                {activeDoctor.name} — Weekly Slots
+              </Text>
+            </View>
+            <View className="px-2.5 py-1 rounded-full bg-[#EAB642]/15">
+              <Text className="text-[11px] font-bold text-[#EAB642]">
+                {(Number(activeDoctor.price) || 0).toLocaleString()} SYP
+              </Text>
+            </View>
+          </View>
 
           {/* 7-day horizontal strip */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -379,8 +342,6 @@ export default function DoctorsScreen() {
                     disabled={isDisabledDay}
                     onPress={() => {
                       setSelectedDate(dayObj.date);
-                      setSelectedSlotId(null);
-                      setStatusMessage("");
                       setSelectedSlotId(null);
                       setStatusMessage("");
                     }}
@@ -444,7 +405,6 @@ export default function DoctorsScreen() {
             </View>
           )}
 
-          
           <TouchableOpacity
             disabled={!selectedSlotId || bookingLoading}
             onPress={handleBook}
@@ -458,6 +418,74 @@ export default function DoctorsScreen() {
           </TouchableOpacity>
         </AppCard>
       ) : null}
+
+      {/* 2. Doctors Header (shows count & search hint) */}
+      <View className="flex-row items-center justify-between mt-1">
+        <Text className="text-sm font-extrabold text-[#2A4D75] dark:text-white">
+          {searchQuery.trim() ? `Search Results (${filteredDoctors.length})` : "Doctors (Top 3)"}
+        </Text>
+        {!searchQuery.trim() && filteredDoctors.length > 3 ? (
+          <Text className="text-[11px] font-semibold text-[#557FB3]">
+            +{filteredDoctors.length - 3} more via search
+          </Text>
+        ) : null}
+      </View>
+
+      {/* 3. Doctors list (top 3 by default, all when searching) */}
+      <View className="gap-3">
+        {displayedDoctors.map((doc) => {
+          const isSelectedDoc = activeDoctor?.id === doc.id;
+          const ratingText =
+            doc.ratingsCount && doc.ratingsCount > 0 && typeof doc.avgRating === "number"
+              ? `${doc.avgRating.toFixed(1)} (${doc.ratingsCount})`
+              : "No ratings yet";
+
+          return (
+            <TouchableOpacity
+              key={doc.id}
+              activeOpacity={0.85}
+              onPress={() => {
+                setSelectedDoctorId(doc.id);
+                setSelectedSlotId(null);
+                setStatusMessage("");
+              }}
+            >
+              <AppCard
+                color="bg-white dark:bg-[#1E2733]"
+                borderColor={
+                  isSelectedDoc ? "border-[#EAB642]" : "border-slate-200 dark:border-slate-700"
+                }
+                className="gap-2"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="w-10 h-10 rounded-2xl bg-[#E4EAF1] dark:bg-slate-800 items-center justify-center">
+                    <Ionicons
+                      name="medkit"
+                      size={20}
+                      color={colorPalette.navyDark}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-extrabold text-[#2A4D75] dark:text-white">
+                      {doc.name}
+                    </Text>
+                    <Text className="text-xs text-slate-500">
+                      {doc.specialty} • {doc.address}
+                    </Text>
+                  </View>
+                  <Text className="text-xs font-extrabold text-[#557FB3]">
+                    {(Number(doc.price) || 0).toLocaleString()} SYP
+                  </Text>
+                </View>
+
+                <Text className="text-xs font-bold text-[#557FB3]">
+                  {ratingText}
+                </Text>
+              </AppCard>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </ScrollView>
   );
 }

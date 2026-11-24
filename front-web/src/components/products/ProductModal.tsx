@@ -33,10 +33,10 @@ export function ProductModal({
 
   useEffect(() => {
     if (productToEdit) {
-      setName(productToEdit.name);
-      setDetails(productToEdit.details);
-      setPrice(String(productToEdit.price));
-      setImageUrl(productToEdit.imageUrl);
+      setName(productToEdit.name || "");
+      setDetails(productToEdit.details || "");
+      setPrice(productToEdit.price != null ? String(productToEdit.price) : "");
+      setImageUrl(productToEdit.imageUrl || fallbackPetImage);
     } else {
       setName("");
       setDetails("");

@@ -167,6 +167,7 @@ export default function StoresScreen() {
         method: "POST",
         body: JSON.stringify({
           deliveryAddress: deliveryAddress.trim(),
+          storeId: selectedStore?.id || "6b0437d44e9594edc2d011eb",
           items: cart.map((item) => ({
             productId: item.id,
             productName: item.name,

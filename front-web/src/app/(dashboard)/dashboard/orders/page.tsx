@@ -186,7 +186,7 @@ export default function PurchaseOrdersPage() {
 
                     {/* Items */}
                     <td className="py-4 px-6 font-medium text-foreground">
-                      {order.items.length} item{order.items.length > 1 ? "s" : ""}
+                      {(order.items || []).length} item{(order.items || []).length !== 1 ? "s" : ""}
                     </td>
 
                     {/* Total Price */}

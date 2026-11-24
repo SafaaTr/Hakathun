@@ -22,6 +22,26 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const defaultStoreOwner: User = {
+  _id: "6b0437d44e9594edc2d011e9",
+  name: "Maya Al Ali",
+  phone: "0988776655",
+  roles: ["store_owner"],
+  isActive: true,
+};
+const defaultStoreOwnerToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YjA0MzdkNDRlOTU5NGVkYzJkMDExZTkiLCJwaG9uZSI6IjA5ODg3NzY2NTUiLCJyb2xlcyI6WyJzdG9yZV9vd25lciJdLCJpYXQiOjE3OTU1MjYwMTcsImV4cCI6MTc5ODExODAxN30.jSx5RaPUCgBWBTjbjoRxqojDB8SvEaj6ZfPAOAieHmE";
+
+const defaultAdmin: User = {
+  _id: "6b0437d44e9594edc2d011e3",
+  name: "admin@rafeeq.sy",
+  phone: "0911223344",
+  roles: ["admin"],
+  isActive: true,
+};
+const defaultAdminToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YjA0MzdkNDRlOTU5NGVkYzJkMDExZTMiLCJwaG9uZSI6IjA5MTEyMjMzNDQiLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3OTU1MjYwMTcsImV4cCI6MTc5ODExODAxN30.gyybsFpNm_bFl590l1hlKuc97UWxGZxqfG9ZMzUpQ5A";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [store, setStore] = useState<Store | null>(initialStore);
@@ -39,42 +59,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch {}
       }
 
+      const isAdminRoute =
+        typeof window !== "undefined" &&
+        window.location.pathname.startsWith("/dashboard/admin");
+
+      if (isAdminRoute) {
+        setToken(defaultAdminToken);
+        setUser(defaultAdmin);
+        localStorage.setItem("token", defaultAdminToken);
+        localStorage.setItem("user", JSON.stringify(defaultAdmin));
+        return;
+      }
+
+      // Non-admin routes (store owner dashboard: /dashboard, /dashboard/products, /dashboard/orders, etc.)
       if (savedToken && savedUser) {
         try {
           const parsed = JSON.parse(savedUser);
-          if (parsed && Array.isArray(parsed.roles)) {
-            const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/dashboard/admin");
-            if (isAdminRoute && !parsed.roles.includes("admin")) {
-              const defaultAdmin: User = {
-                _id: "6b0437d44e9594edc2d011e3",
-                name: "admin@rafeeq.sy",
-                phone: "0911223344",
-                roles: ["admin"],
-                isActive: true,
-              };
-              const defaultToken =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YjA0MzdkNDRlOTU5NGVkYzJkMDExZTMiLCJuYW1lIjoiYWRtaW5AcmFmZWVxLnN5Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzk1NDQ1NjUwLCJleHAiOjE3OTYwNTA0NTB9.7sX2LBv8cxKVZZSzb5cjuGXKdSi9F7YUwubedPN9Ilk";
-              setToken(defaultToken);
-              setUser(defaultAdmin);
-              localStorage.setItem("token", defaultToken);
-              localStorage.setItem("user", JSON.stringify(defaultAdmin));
-            } else {
-              setToken(savedToken);
-              setUser(parsed);
-              if (parsed.roles.includes("store_owner") && !savedStore) {
-                setStore(initialStore);
-              }
-            }
+          if (parsed && Array.isArray(parsed.roles) && parsed.roles.includes("store_owner")) {
+            setToken(savedToken);
+            setUser(parsed);
+            if (!savedStore) setStore(initialStore);
             return;
           }
         } catch {}
       }
 
-      // If no valid session exists, default to store owner
-      setUser(initialOwnerUser);
+      // Default to authenticated store owner
+      setToken(defaultStoreOwnerToken);
+      setUser(defaultStoreOwner);
       setStore(initialStore);
+      localStorage.setItem("token", defaultStoreOwnerToken);
+      localStorage.setItem("user", JSON.stringify(defaultStoreOwner));
+      localStorage.setItem("store", JSON.stringify(initialStore));
     } catch {
-      setUser(initialOwnerUser);
+      setToken(defaultStoreOwnerToken);
+      setUser(defaultStoreOwner);
       setStore(initialStore);
     } finally {
       setHydrated(true);

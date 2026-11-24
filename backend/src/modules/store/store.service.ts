@@ -165,7 +165,9 @@ export class StoreService implements OnModuleInit {
     }
 
     if (!storeId) {
-      const activeStore = await this.storeModel.findOne({ status: 'active' });
+      const activeStore = await this.storeModel.findOne({
+        $or: [{ phone: '0988776655' }, { status: 'active' }],
+      });
       storeId = activeStore?._id;
     }
 

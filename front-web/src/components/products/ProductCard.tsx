@@ -13,9 +13,11 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onEdit, onDeactivate }: ProductCardProps) {
-  const isAvailable = product.status === "available";
+  const isAvailable = product?.status === "available";
   const defaultFallback = "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&auto=format&fit=crop&q=80";
-  const [imgSrc, setImgSrc] = useState(product.imageUrl || defaultFallback);
+  const [imgSrc, setImgSrc] = useState(product?.imageUrl || defaultFallback);
+
+  if (!product) return null;
 
   return (
     <div
@@ -29,22 +31,22 @@ export function ProductCard({ product, onEdit, onDeactivate }: ProductCardProps)
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imgSrc}
-            alt={product.name}
+            alt={product.name || "Product"}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={() => setImgSrc(defaultFallback)}
           />
           <div className="absolute top-3 right-3">
-            <Badge status={product.status} />
+            <Badge status={product.status || "available"} />
           </div>
         </div>
 
         {/* Content */}
         <div className="p-5 space-y-2">
           <h3 className="font-bold text-base text-foreground line-clamp-1 group-hover:text-yellow transition-colors">
-            {product.name}
+            {product.name || "Product"}
           </h3>
           <p className="text-xs text-muted line-clamp-2 leading-relaxed">
-            {product.details}
+            {product.details || ""}
           </p>
         </div>
       </div>
