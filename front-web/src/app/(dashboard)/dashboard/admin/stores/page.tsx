@@ -87,9 +87,9 @@ export default function AdminStoresPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((store) => (
+        {filtered.map((store, idx) => (
           <div
-            key={store._id}
+            key={store._id || (store as any).id || `store-${idx}`}
             className="bg-card border border-card-border rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4"
           >
             <div className="space-y-3">

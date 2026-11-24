@@ -246,6 +246,7 @@ export class AdminService {
 
         return {
           id: u._id,
+          _id: u._id,
           name: u.name,
           phone: u.phone,
           petsCount,

@@ -381,8 +381,19 @@ export const adminService = {
   // Pet Owners
   async getPetOwners(): Promise<AdminPetOwner[]> {
     try {
-      const res = await api.get<ApiResponse<AdminPetOwner[]>>("/admin/pet-owners");
-      if (res.data?.data) return res.data.data;
+      const res = await api.get<ApiResponse<any>>("/admin/pet-owners");
+      const list = res.data?.data || res.data;
+      if (Array.isArray(list)) {
+        return list.map((o: any, idx: number) => ({
+          _id: o._id || o.id || `pet-owner-${idx}`,
+          name: o.name || "Pet Owner",
+          phone: o.phone || "",
+          petsCount: o.petsCount ?? 0,
+          hasPet: (o.petsCount ?? 0) > 0,
+          canHost: Boolean(o.canHost || o.roles?.includes("host_caregiver")),
+          isActive: o.isActive !== false,
+        }));
+      }
     } catch {}
     return mockOwners;
   },

@@ -51,35 +51,38 @@ export default function AdminPetOwnersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-card-border text-sm">
-            {filtered.map((owner) => (
-              <tr key={owner._id} className="hover:bg-cream/20 transition-colors">
-                <td className="py-4 px-6 font-bold text-foreground flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-cream dark:bg-card-border flex items-center justify-center text-navy dark:text-yellow">
-                    <PawPrint className="w-4 h-4" />
-                  </div>
-                  <span>{owner.name}</span>
-                </td>
-                <td className="py-4 px-6 text-muted font-mono">{owner.phone}</td>
-                <td className="py-4 px-6 font-semibold text-foreground">
-                  {owner.petsCount} pet{owner.petsCount > 1 ? "s" : ""}
-                </td>
-                <td className="py-4 px-6">
-                  {owner.canHost ? (
-                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                      Dual Role (Host)
+            {filtered.map((owner, idx) => {
+              const ownerKey = owner._id || (owner as any).id || `owner-${idx}-${owner.phone}`;
+              return (
+                <tr key={ownerKey} className="hover:bg-cream/20 transition-colors">
+                  <td className="py-4 px-6 font-bold text-foreground flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-cream dark:bg-card-border flex items-center justify-center text-navy dark:text-yellow">
+                      <PawPrint className="w-4 h-4" />
+                    </div>
+                    <span>{owner.name}</span>
+                  </td>
+                  <td className="py-4 px-6 text-muted font-mono">{owner.phone}</td>
+                  <td className="py-4 px-6 font-semibold text-foreground">
+                    {owner.petsCount} pet{owner.petsCount > 1 ? "s" : ""}
+                  </td>
+                  <td className="py-4 px-6">
+                    {owner.canHost ? (
+                      <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                        Dual Role (Host)
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted">Pet Owner Only</span>
+                    )}
+                  </td>
+                  <td className="py-4 px-6">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      <span>Active</span>
                     </span>
-                  ) : (
-                    <span className="text-xs text-muted">Pet Owner Only</span>
-                  )}
-                </td>
-                <td className="py-4 px-6">
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    <span>Active</span>
-                  </span>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
