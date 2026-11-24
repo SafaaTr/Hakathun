@@ -168,7 +168,7 @@ export default function AdminHostsPage() {
                   <div className="flex items-center gap-2 font-semibold text-foreground">
                     <Coins className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span>
-                      Pricing: {host.pricingType === "paid" ? `${host.dailyPrice?.toLocaleString()} SYP / day` : "Free"}
+                      Pricing: {host.pricingType === "paid" ? `${(Number(host.dailyPrice) || 0).toLocaleString()} SYP / day` : "Free"}
                     </span>
                   </div>
                 </div>
