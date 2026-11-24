@@ -14,17 +14,17 @@ export class CreatePetDto {
   @Min(0)
   age: number;
 
-  @IsNotEmpty({ message: 'Please fill in all fields.' })
+  @IsOptional()
   @IsString()
-  vaccinationRecordUrl: string;
+  vaccinationRecordUrl?: string;
 
-  @IsNotEmpty({ message: 'Please fill in all fields.' })
+  @IsOptional()
   @IsString()
-  lastVetVisitDate: string;
+  lastVetVisitDate?: string;
 
-  @IsNotEmpty({ message: 'Please fill in all fields.' })
+  @IsOptional()
   @IsString()
-  photoUrl: string;
+  photoUrl?: string;
 
   @IsOptional()
   @IsString()

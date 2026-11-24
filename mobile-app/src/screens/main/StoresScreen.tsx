@@ -13,6 +13,7 @@ import SearchBar from "../../components/SearchBar";
 import AppCard from "../../components/AppCard";
 import AppButton from "../../components/AppButton";
 import { colorPalette } from "../../constants/colors";
+import { fetchApi } from "../../services/apiClient";
 
 interface StoreProduct {
   id: string;
@@ -151,17 +152,39 @@ export default function StoresScreen() {
     [cart]
   );
 
-  const handleConfirmPurchase = () => {
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleConfirmPurchase = async () => {
     setCheckoutError("");
     if (!deliveryAddress.trim()) {
       setCheckoutError("Please fill in all fields.");
       return;
     }
 
-    setCheckoutSuccess("Your order has been placed (Cash on Delivery).");
-    setCart([]);
-    setDeliveryAddress("");
-    setIsCartOpen(false);
+    setCheckoutLoading(true);
+    try {
+      await fetchApi<any>("/orders/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          deliveryAddress: deliveryAddress.trim(),
+          items: cart.map((item) => ({
+            productId: item.id,
+            productName: item.name,
+            unitPrice: item.price,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      setCheckoutSuccess("Your order has been placed (Cash on Delivery).");
+      setCart([]);
+      setDeliveryAddress("");
+      setIsCartOpen(false);
+    } catch (err: any) {
+      setCheckoutError(err?.message || "Failed to place order.");
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   return (
@@ -348,7 +371,8 @@ export default function StoresScreen() {
 
           {cart.length > 0 ? (
             <AppButton
-              title="Confirm Purchase"
+              title={checkoutLoading ? "Placing Order..." : "Confirm Purchase"}
+              disabled={checkoutLoading}
               onPress={handleConfirmPurchase}
               color="bg-[#EAB642]"
               textColor="text-white"

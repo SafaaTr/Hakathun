@@ -15,8 +15,11 @@ import AppCard from "../../components/AppCard";
 import { colorPalette } from "../../constants/colors";
 import { useAuth } from "../../context/AuthContext";
 import { updateOwnerProfile } from "../../services/authService";
+import { fetchApi } from "../../services/apiClient";
 
 interface PetData {
+  id?: string;
+  name?: string;
   referenceCode: string;
   petType: string;
   age: number;
@@ -117,6 +120,7 @@ export default function ProfileScreen({
   const [isEditingPet, setIsEditingPet] = useState(false);
   const [savingPet, setSavingPet] = useState(false);
 
+  const [petNameInput, setPetNameInput] = useState("");
   const [petTypeInput, setPetTypeInput] = useState("");
   const [ageInput, setAgeInput] = useState("");
   const [lastVetVisitInput, setLastVetVisitInput] = useState("");
@@ -132,35 +136,54 @@ export default function ProfileScreen({
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
-    const backendPet = user?.pet ?? user?.user?.pet ?? null;
-    if (backendPet && (backendPet.petType || backendPet.type || backendPet.name)) {
-      const normalized: PetData = {
-        referenceCode:
-          backendPet.referenceCode ||
-          `PET-${Math.floor(100000 + Math.random() * 900000)}`,
-        petType: backendPet.petType || backendPet.type || "",
-        age: Number(backendPet.age ?? 0),
-        lastVetVisitDate: backendPet.lastVetVisitDate || "",
-        vaccinationRecordUrl: backendPet.vaccinationRecordUrl || "",
-        photoUrl: backendPet.photoUrl || "",
-      };
+    let active = true;
+    async function loadPetOwnerProfile() {
+      try {
+        const res = await fetchApi<any>("/me/profile", { method: "GET" });
+        const resData = res?.data || res;
+        if (resData && active) {
+          if (resData.user) {
+            if (resData.user.name) setOwnerNameInput(resData.user.name);
+            if (resData.user.phone) setOwnerPhoneInput(resData.user.phone);
+          }
+          if (Array.isArray(resData.pets) && resData.pets.length > 0) {
+            const p = resData.pets[0];
+            const normalized: PetData = {
+              id: p._id || p.id,
+              name: p.name || "",
+              referenceCode: p.referenceCode || `PET-${(p._id || "").slice(-6).toUpperCase()}`,
+              petType: p.petType || "",
+              age: Number(p.age || 0),
+              lastVetVisitDate: p.lastVetVisitDate ? String(p.lastVetVisitDate).split("T")[0] : "",
+              vaccinationRecordUrl: p.vaccinationRecordUrl || "",
+              photoUrl: p.photoUrl || "",
+            };
 
-      queueMicrotask(() => {
-        setPet(normalized);
-        setPetTypeInput(normalized.petType);
-        setAgeInput(normalized.age ? String(normalized.age) : "");
-        setLastVetVisitInput(normalized.lastVetVisitDate);
-        setVaccinationPdfInput(normalized.vaccinationRecordUrl);
-        setVaccinationPdfName(normalized.vaccinationRecordUrl.split("/").pop() || "Vaccination record");
-        setPhotoUrlInput(normalized.photoUrl);
-        setPhotoName(normalized.photoUrl.split("/").pop() || "Pet photo");
-      });
+            setPet(normalized);
+            setPetNameInput(normalized.name || "");
+            setPetTypeInput(normalized.petType);
+            setAgeInput(normalized.age ? String(normalized.age) : "");
+            setLastVetVisitInput(normalized.lastVetVisitDate);
+            setVaccinationPdfInput(normalized.vaccinationRecordUrl);
+            setVaccinationPdfName(normalized.vaccinationRecordUrl.split("/").pop() || "Vaccination record");
+            setPhotoUrlInput(normalized.photoUrl);
+            setPhotoName(normalized.photoUrl.split("/").pop() || "Pet photo");
+          }
+        }
+      } catch (err) {
+        // Fallback
+      }
     }
-  }, [user]);
+    void loadPetOwnerProfile();
+    return () => {
+      active = false;
+    };
+  }, [user?.id, user?.name]);
 
   const handleOpenPetForm = () => {
     setPetFeedback(null);
     if (pet) {
+      setPetNameInput(pet.name || "");
       setPetTypeInput(pet.petType);
       setAgeInput(String(pet.age));
       setLastVetVisitInput(pet.lastVetVisitDate);
@@ -169,6 +192,7 @@ export default function ProfileScreen({
       setPhotoUrlInput(pet.photoUrl);
       setPhotoName(pet.photoUrl.split("/").pop() || "Pet photo");
     } else {
+      setPetNameInput("");
       setPetTypeInput("");
       setAgeInput("");
       setLastVetVisitInput("");
@@ -231,24 +255,23 @@ export default function ProfileScreen({
       !petTypeInput.trim() ||
       !ageInput.trim() ||
       Number.isNaN(parsedAge) ||
-      parsedAge < 0 ||
-      !lastVetVisitInput.trim() ||
-      !vaccinationPdfInput.trim() ||
-      !photoUrlInput.trim()
+      parsedAge < 0
     ) {
       setPetFeedback({
         type: "error",
-        text: "Please fill in all fields.",
+        text: "Please enter pet type and a valid age.",
       });
       return;
     }
 
+    const defaultPhoto = "https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=400";
     const payload: CreatePetPayload = {
+      name: petNameInput.trim() || undefined,
       petType: petTypeInput.trim(),
       age: parsedAge,
-      lastVetVisitDate: lastVetVisitInput.trim(),
-      vaccinationRecordUrl: vaccinationPdfInput.trim(),
-      photoUrl: photoUrlInput.trim(),
+      lastVetVisitDate: lastVetVisitInput.trim() || new Date().toISOString().split("T")[0],
+      vaccinationRecordUrl: vaccinationPdfInput.trim() || "Record on file",
+      photoUrl: photoUrlInput.trim() || defaultPhoto,
     };
 
     setSavingPet(true);
@@ -259,9 +282,11 @@ export default function ProfileScreen({
         user?.data?.accessToken ||
         user?.data?.token;
 
-      const savedFromBackend = await savePetRequest(payload, token);
+      const savedFromBackend = await savePetRequest(payload, token, pet?.id);
 
       const savedPet: PetData = {
+        id: savedFromBackend?._id || savedFromBackend?.id || pet?.id,
+        name: savedFromBackend?.name || payload.name,
         referenceCode:
           savedFromBackend?.referenceCode ||
           pet?.referenceCode ||
@@ -403,6 +428,11 @@ export default function ProfileScreen({
               <Text className="text-xs font-bold text-[#557FB3]">
                 Reference Code: {pet.referenceCode}
               </Text>
+              {pet.name ? (
+                <Text className="text-xs text-slate-700 dark:text-slate-200">
+                  Name: <Text className="font-bold">{pet.name}</Text>
+                </Text>
+              ) : null}
               <Text className="text-xs text-slate-700 dark:text-slate-200">
                 Pet Type: <Text className="font-bold">{pet.petType}</Text>
               </Text>
@@ -435,6 +465,13 @@ export default function ProfileScreen({
           )
         ) : (
           <View className="gap-2.5 pt-1">
+            <TextInput
+              value={petNameInput}
+              onChangeText={setPetNameInput}
+              placeholder="Pet name (e.g. Luna, Max)"
+              placeholderTextColor="#94A3B8"
+              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
+            />
             <TextInput
               value={petTypeInput}
               onChangeText={setPetTypeInput}
@@ -482,9 +519,9 @@ export default function ProfileScreen({
               )}
               <View className="flex-1">
                 <Text className="text-xs font-bold text-[#2A4D75]">
-                  {photoName || "Upload pet photo"}
+                  {photoName || "Upload pet photo (Optional)"}
                 </Text>
-                <Text className="text-xs text-slate-400">JPG or PNG - max 5 MB</Text>
+                <Text className="text-xs text-slate-400">Optional · JPG or PNG - max 5 MB</Text>
               </View>
             </TouchableOpacity>
 

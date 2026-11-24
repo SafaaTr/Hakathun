@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AppCard from "../../components/AppCard";
 import { colorPalette } from "../../constants/colors";
 import { submitRating } from "../../services/rafeeqService";
+import { fetchApi } from "../../services/apiClient";
+import { useAuth } from "../../context/AuthContext";
 
 export interface OwnerBookingItem {
   id: string;
@@ -12,7 +14,7 @@ export interface OwnerBookingItem {
   subtitle: string;
   dateTime: string;
   price: number;
-  kind: "doctor" | "host";
+  kind: "doctor" | "host" | "store";
   status: "pending" | "approved" | "rejected";
   isServiceCompleted: boolean;
   canRate: boolean;
@@ -47,8 +49,10 @@ const INITIAL_OWNER_BOOKINGS: OwnerBookingItem[] = [
 ];
 
 export default function MyBookingsScreen() {
+  const { user } = useAuth();
   const [bookings, setBookings] =
     useState<OwnerBookingItem[]>(INITIAL_OWNER_BOOKINGS);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"pending" | "approved">("pending");
   const [ratingBookingId, setRatingBookingId] = useState<string | null>(null);
   const [selectedStars, setSelectedStars] = useState<number>(0);
@@ -58,6 +62,94 @@ export default function MyBookingsScreen() {
     type: "error" | "success";
     text: string;
   } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    async function loadBookings() {
+      setLoading(true);
+      try {
+        const res = await fetchApi<any>("/me/profile", { method: "GET" });
+        const resData = res?.data || res;
+        if (resData && active) {
+          const loadedItems: OwnerBookingItem[] = [];
+
+          // 1. Vet Bookings
+          if (Array.isArray(resData.vetBookings)) {
+            resData.vetBookings.forEach((vb: any) => {
+              loadedItems.push({
+                id: vb._id || vb.id,
+                referenceCode: vb.referenceCode || `VET-${(vb._id || '').slice(-6).toUpperCase()}`,
+                title: vb.doctorName || vb.clinicName || "Veterinary Doctor",
+                subtitle: `${vb.petSummary || vb.petId?.name || "Pet Consultation"} • Pet Clinic`,
+                dateTime: `${vb.appointmentDate || "Scheduled"} • ${vb.appointmentTime || ""}`,
+                price: Number(vb.consultationPrice) || 35000,
+                kind: "doctor",
+                status: vb.status === "approved" ? "approved" : vb.status === "rejected" ? "rejected" : "pending",
+                isServiceCompleted: vb.status === "approved",
+                canRate: Boolean(vb.canRate),
+                myRating: vb.myRating,
+              });
+            });
+          }
+
+          // 2. Host Requests
+          if (Array.isArray(resData.hostRequests)) {
+            resData.hostRequests.forEach((hb: any) => {
+              const startStr = hb.startDate ? String(hb.startDate).split("T")[0] : "";
+              const endStr = hb.endDate ? String(hb.endDate).split("T")[0] : "";
+              loadedItems.push({
+                id: hb._id || hb.id,
+                referenceCode: hb.referenceCode || `HST-${(hb._id || '').slice(-6).toUpperCase()}`,
+                title: hb.hostUserId?.name || "Host Caregiver",
+                subtitle: `${hb.petId?.name || "Pet Boarding"} • ${hb.foodNotes || "Host Care"}`,
+                dateTime: `${startStr} – ${endStr}`,
+                price: Number(hb.totalPrice) || 50000,
+                kind: "host",
+                status: hb.status === "approved" ? "approved" : hb.status === "rejected" ? "rejected" : "pending",
+                isServiceCompleted: hb.status === "approved",
+                canRate: Boolean(hb.canRate),
+                myRating: hb.myRating,
+              });
+            });
+          }
+
+          // 3. Store Purchase Orders
+          if (Array.isArray(resData.orders)) {
+            resData.orders.forEach((ord: any) => {
+              const itemNames = Array.isArray(ord.items)
+                ? ord.items.map((it: any) => `${it.productName} (x${it.quantity})`).join(", ")
+                : "Pet Items";
+              loadedItems.push({
+                id: ord._id || ord.id,
+                referenceCode: ord.referenceCode || `ORD-${(ord._id || '').slice(-6).toUpperCase()}`,
+                title: "Pet Store Purchase",
+                subtitle: `${itemNames} • ${ord.deliveryAddress || "Damascus"}`,
+                dateTime: ord.createdAt ? String(ord.createdAt).split("T")[0] : "Recent",
+                price: Number(ord.totalPrice) || 0,
+                kind: "store",
+                status: ord.status === "approved" ? "approved" : ord.status === "rejected" ? "rejected" : "pending",
+                isServiceCompleted: ord.status === "approved",
+                canRate: false,
+              });
+            });
+          }
+
+          if (loadedItems.length > 0) {
+            setBookings(loadedItems);
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to load user bookings from API:", err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void loadBookings();
+    return () => {
+      active = false;
+    };
+  }, [user?.id, user?.name]);
 
   const visibleBookings = bookings.filter((b) =>
     activeTab === "pending" ? b.status === "pending" : b.status === "approved"
@@ -213,7 +305,13 @@ export default function MyBookingsScreen() {
                 <View className="flex-row items-center gap-2.5 flex-1">
                   <View className="w-10 h-10 rounded-2xl bg-[#E4EAF1] dark:bg-slate-800 items-center justify-center">
                     <Ionicons
-                      name={booking.kind === "doctor" ? "medkit" : "home"}
+                      name={
+                        booking.kind === "doctor"
+                          ? "medkit"
+                          : booking.kind === "host"
+                          ? "home"
+                          : "cart"
+                      }
                       size={20}
                       color={colorPalette.navyDark}
                     />

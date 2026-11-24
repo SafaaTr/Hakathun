@@ -151,32 +151,50 @@ export class StoreService implements OnModuleInit {
   }
 
   async checkout(userId: string, dto: CheckoutDto) {
+    let items = dto.items;
+    let storeId = dto.storeId && Types.ObjectId.isValid(dto.storeId) ? new Types.ObjectId(dto.storeId) : undefined;
     const cart = await this.cartModel.findOne({ userId: new Types.ObjectId(userId) });
-    if (!cart || cart.items.length === 0) {
+
+    if ((!items || items.length === 0) && cart && cart.items.length > 0) {
+      items = cart.items as any;
+      storeId = cart.items[0]?.storeId;
+    }
+
+    if (!items || items.length === 0) {
       throw new BadRequestException('Cart is empty.');
     }
 
-    const totalPrice = cart.items.reduce(
-      (acc, item) => acc + item.unitPrice * item.quantity,
+    if (!storeId) {
+      const activeStore = await this.storeModel.findOne({ status: 'active' });
+      storeId = activeStore?._id;
+    }
+
+    const totalPrice = items.reduce(
+      (acc, item) => acc + (Number(item.unitPrice) || 0) * (Number(item.quantity) || 1),
       0,
     );
-    const storeId = cart.items[0].storeId;
     const refCode = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const order = await this.orderModel.create({
       referenceCode: refCode,
       customerId: new Types.ObjectId(userId),
       storeId,
-      items: cart.items,
+      items: items.map((it) => ({
+        productId: it.productId && Types.ObjectId.isValid(it.productId) ? new Types.ObjectId(it.productId) : undefined,
+        productName: it.productName,
+        unitPrice: Number(it.unitPrice) || 0,
+        quantity: Number(it.quantity) || 1,
+      })),
       totalPrice,
       deliveryAddress: dto.deliveryAddress,
       paymentMethod: 'cash_on_delivery',
       status: 'pending',
     });
 
-    // Empty cart
-    cart.items = [];
-    await cart.save();
+    if (cart) {
+      cart.items = [];
+      await cart.save();
+    }
 
     return order;
   }

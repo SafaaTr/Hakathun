@@ -85,4 +85,30 @@ export class ProfileController {
       data: result,
     };
   }
+
+  @Patch('auth/profile')
+  @ApiOperation({ summary: 'Update profile alias for mobile client' })
+  async updateProfileAuthAlias(
+    @CurrentUser('userId') userId: string,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    const result = await this.authService.updateProfile(userId, dto);
+    return {
+      message: result.message,
+      data: result,
+    };
+  }
+
+  @Patch('profile')
+  @ApiOperation({ summary: 'Update profile generic alias' })
+  async updateProfileGenericAlias(
+    @CurrentUser('userId') userId: string,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    const result = await this.authService.updateProfile(userId, dto);
+    return {
+      message: result.message,
+      data: result,
+    };
+  }
 }

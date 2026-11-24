@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import React, { useMemo, useState, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "../../components/SearchBar";
 import AppCard from "../../components/AppCard";
 import { colorPalette } from "../../constants/colors";
+import { useAuth } from "../../context/AuthContext";
+import { fetchApi } from "../../services/apiClient";
 
 interface CaregiverItem {
   id: string;
@@ -62,19 +64,54 @@ const MOCK_CAREGIVERS: CaregiverItem[] = [
 ];
 
 export default function HostCaregiversScreen() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
+  const [caregivers, setCaregivers] = useState<HostCaregiverItem[]>(MOCK_CAREGIVERS);
   const [selectedHostId, setSelectedHostId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [foodNotes, setFoodNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "error" | "success";
     text: string;
   } | null>(null);
 
+  useEffect(() => {
+    let active = true;
+    async function loadHosts() {
+      try {
+        const res = await fetchApi<any>("/admin/hosts", { method: "GET" });
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        if (active && list.length > 0) {
+          const mapped: HostCaregiverItem[] = list.map((h: any) => ({
+            id: h._id || h.hostUserId || h.userId || `host_${Date.now()}`,
+            name: h.name || h.hostName || "Host Caregiver",
+            placeType: (h.placeType as PlaceType) || "home",
+            address: h.address || "Damascus",
+            acceptedPetType: h.acceptedPetType || "Cats & Small Dogs",
+            pricingType: (h.pricingType as PricingType) || "paid",
+            dailyPrice: typeof h.dailyPrice === "number" ? h.dailyPrice : 25000,
+            foodCost: h.foodCost || "Not needed",
+            status: h.status === "unavailable" ? "unavailable" : "available",
+            avgRating: typeof h.avgRating === "number" ? h.avgRating : 5.0,
+            ratingsCount: typeof h.ratingsCount === "number" ? h.ratingsCount : 1,
+          }));
+          setCaregivers(mapped);
+        }
+      } catch (err) {
+        // Fallback to MOCK_CAREGIVERS
+      }
+    }
+    void loadHosts();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const availableCaregivers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return MOCK_CAREGIVERS.filter((cg) => cg.status === "available").filter(
+    return caregivers.filter((cg) => cg.status === "available").filter(
       (cg) => {
         if (!q) return true;
         return (
@@ -84,9 +121,9 @@ export default function HostCaregiversScreen() {
         );
       }
     );
-  }, [searchQuery]);
+  }, [caregivers, searchQuery]);
 
-  const handleSubmitHostingRequest = (hostName: string) => {
+  const handleSubmitHostingRequest = async (hostId: string, hostName: string) => {
     setFeedback(null);
     if (!startDate.trim() || !endDate.trim() || !foodNotes.trim()) {
       setFeedback({
@@ -96,14 +133,35 @@ export default function HostCaregiversScreen() {
       return;
     }
 
-    setFeedback({
-      type: "success",
-      text: "Your request has been sent, you will receive a response.",
-    });
-    setSelectedHostId(null);
-    setStartDate("");
-    setEndDate("");
-    setFoodNotes("");
+    setIsSubmitting(true);
+    try {
+      await fetchApi<any>("/host-bookings", {
+        method: "POST",
+        body: JSON.stringify({
+          hostUserId: hostId,
+          petId: user?.pet?._id || user?.pet?.id,
+          startDate: startDate.trim(),
+          endDate: endDate.trim(),
+          foodNotes: foodNotes.trim(),
+        }),
+      });
+
+      setFeedback({
+        type: "success",
+        text: "Your request has been sent, you will receive a response.",
+      });
+      setSelectedHostId(null);
+      setStartDate("");
+      setEndDate("");
+      setFoodNotes("");
+    } catch (err: any) {
+      setFeedback({
+        type: "error",
+        text: err?.message || "Failed to submit hosting request.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -229,12 +287,17 @@ export default function HostCaregiversScreen() {
                   className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
                 />
                 <TouchableOpacity
-                  onPress={() => handleSubmitHostingRequest(cg.name)}
+                  disabled={isSubmitting}
+                  onPress={() => handleSubmitHostingRequest(cg.id, cg.name)}
                   className="py-2.5 rounded-xl bg-[#2A4D75] items-center"
                 >
-                  <Text className="text-xs font-bold text-white">
-                    Submit Hosting Request
-                  </Text>
+                  {isSubmitting ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Text className="text-xs font-bold text-white">
+                      Submit Hosting Request
+                    </Text>
+                  )}
                 </TouchableOpacity>
               </View>
             ) : null}

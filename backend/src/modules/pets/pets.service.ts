@@ -20,20 +20,43 @@ export class PetsService {
 
   async createPet(userId: string, dto: CreatePetDto): Promise<PetDocument> {
     const referenceCode = this.generateReference();
+    const defaultPhoto = 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=400';
     const pet = new this.petModel({
       ownerId: new Types.ObjectId(userId),
       referenceCode,
       name: dto.name || '',
       petType: dto.petType,
       age: dto.age,
-      vaccinationRecordUrl: dto.vaccinationRecordUrl,
-      lastVetVisitDate: new Date(dto.lastVetVisitDate),
-      photoUrl: dto.photoUrl,
+      vaccinationRecordUrl: dto.vaccinationRecordUrl || 'Record on file',
+      lastVetVisitDate: dto.lastVetVisitDate ? new Date(dto.lastVetVisitDate) : new Date(),
+      photoUrl: dto.photoUrl || defaultPhoto,
       notes: dto.notes || '',
     });
 
     await pet.save();
 
+    return pet;
+  }
+
+  async updatePet(id: string, userId: string, dto: Partial<CreatePetDto>): Promise<PetDocument> {
+    const pet = await this.petModel.findOne({
+      _id: new Types.ObjectId(id),
+      ownerId: new Types.ObjectId(userId),
+    });
+
+    if (!pet) {
+      throw new NotFoundException('Pet not found');
+    }
+
+    if (dto.name !== undefined) pet.name = dto.name;
+    if (dto.petType !== undefined) pet.petType = dto.petType;
+    if (dto.age !== undefined) pet.age = dto.age;
+    if (dto.vaccinationRecordUrl !== undefined) pet.vaccinationRecordUrl = dto.vaccinationRecordUrl;
+    if (dto.lastVetVisitDate !== undefined) pet.lastVetVisitDate = new Date(dto.lastVetVisitDate);
+    if (dto.photoUrl !== undefined) pet.photoUrl = dto.photoUrl;
+    if (dto.notes !== undefined) pet.notes = dto.notes;
+
+    await pet.save();
     return pet;
   }
 

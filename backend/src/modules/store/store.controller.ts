@@ -66,6 +66,34 @@ export class CartController {
       data: order,
     };
   }
+
+  @Post('stores/orders/checkout')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Checkout cart alias' })
+  async checkoutStoresAlias(
+    @CurrentUser() user: { userId: string },
+    @Body() dto: CheckoutDto,
+  ) {
+    const order = await this.storeService.checkout(user.userId, dto);
+    return {
+      message: 'Order created successfully. Delivery on Cash.',
+      data: order,
+    };
+  }
+
+  @Post('store/orders/checkout')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Checkout cart alias' })
+  async checkoutStoreAlias(
+    @CurrentUser() user: { userId: string },
+    @Body() dto: CheckoutDto,
+  ) {
+    const order = await this.storeService.checkout(user.userId, dto);
+    return {
+      message: 'Order created successfully. Delivery on Cash.',
+      data: order,
+    };
+  }
 }
 
 @ApiTags('Store Owner Management')

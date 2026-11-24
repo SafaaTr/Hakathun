@@ -151,13 +151,48 @@ export class VetService implements OnModuleInit {
   }
 
   async getDoctorSlots(doctorId: string) {
-    const slots = await this.vetSlotModel
+    let slots = await this.vetSlotModel
       .find({
         doctorId: new Types.ObjectId(doctorId),
         status: 'available',
       })
       .sort({ date: 1, time: 1 })
       .exec();
+
+    if (!slots || slots.length === 0) {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const defaultTimes = ['09:30', '11:00', '13:30', '16:00', '18:00'];
+      const newSlots = [];
+      const now = new Date();
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(d.getDate() + i);
+        const dateStr = d.toISOString().split('T')[0];
+        const dayStr = days[d.getDay()];
+
+        for (const time of defaultTimes) {
+          newSlots.push({
+            doctorId: new Types.ObjectId(doctorId),
+            date: dateStr,
+            day: dayStr,
+            time,
+            status: 'available',
+          });
+        }
+      }
+
+      if (newSlots.length > 0) {
+        await this.vetSlotModel.insertMany(newSlots);
+        slots = await this.vetSlotModel
+          .find({
+            doctorId: new Types.ObjectId(doctorId),
+            status: 'available',
+          })
+          .sort({ date: 1, time: 1 })
+          .exec();
+      }
+    }
 
     return slots.map((s) => ({
       slotId: s._id.toString(),

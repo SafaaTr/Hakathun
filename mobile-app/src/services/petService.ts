@@ -3,16 +3,18 @@ import { API_BASE_URL, getClientToken } from "./apiClient";
 export { API_BASE_URL };
 
 export interface CreatePetPayload {
+  name?: string;
   petType: string;
   age: number;
-  lastVetVisitDate: string;
-  vaccinationRecordUrl: string;
-  photoUrl: string;
+  lastVetVisitDate?: string;
+  vaccinationRecordUrl?: string;
+  photoUrl?: string;
 }
 
 export async function savePetRequest(
   payload: CreatePetPayload,
-  token?: string
+  token?: string,
+  petId?: string
 ) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -22,8 +24,11 @@ export async function savePetRequest(
     headers.Authorization = "Bearer " + (token || getClientToken());
   }
 
-  const response = await fetch(`${API_BASE_URL}/pets`, {
-    method: "POST",
+  const url = petId ? `${API_BASE_URL}/pets/${petId}` : `${API_BASE_URL}/pets`;
+  const method = petId ? "PATCH" : "POST";
+
+  const response = await fetch(url, {
+    method,
     headers,
     body: JSON.stringify(payload),
   });

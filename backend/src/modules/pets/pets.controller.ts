@@ -2,6 +2,8 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
+  Put,
   Body,
   Param,
   UseGuards,
@@ -48,5 +50,35 @@ export class PetsController {
   ) {
     const pet = await this.petsService.getPetById(id, userId);
     return pet;
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update pet details' })
+  async updatePet(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+    @Body() dto: Partial<CreatePetDto>,
+  ) {
+    const pet = await this.petsService.updatePet(id, userId, dto);
+    return {
+      success: true,
+      message: 'Pet profile updated successfully',
+      data: pet,
+    };
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update pet details (PUT alias)' })
+  async updatePetPut(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+    @Body() dto: Partial<CreatePetDto>,
+  ) {
+    const pet = await this.petsService.updatePet(id, userId, dto);
+    return {
+      success: true,
+      message: 'Pet profile updated successfully',
+      data: pet,
+    };
   }
 }
