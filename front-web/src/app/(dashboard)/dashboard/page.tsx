@@ -5,7 +5,7 @@ import { ShoppingBag, Clock, Coins, Store, Stethoscope, Users, HeartHandshake } 
 import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { RecentOrdersTable } from "@/components/dashboard/RecentOrdersTable";
-import { PlatformPulseAnimation } from "@/components/dashboard/PlatformPulseAnimation";
+import { AnimatedCatMascot } from "@/components/dashboard/AnimatedCatMascot";
 import { useAuth } from "@/context/AuthContext";
 import { orderService } from "@/services/order.service";
 import { productService } from "@/services/product.service";
@@ -183,9 +183,9 @@ export default function DashboardHomePage() {
         </div>
       )}
 
-      {/* For Admin: Interactive Anime.js Live Ecosystem Pulse Widget */}
+      {/* For Admin: Interactive Anime.js Animated Cat Mascot (Rafeeq) */}
       {isAdmin ? (
-        <PlatformPulseAnimation stats={adminStats} />
+        <AnimatedCatMascot />
       ) : (
         /* Recent Orders Section for Store Owner */
         <RecentOrdersTable
