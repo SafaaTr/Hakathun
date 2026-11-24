@@ -51,7 +51,17 @@ export interface VetDoctorAccount {
 }
 
 export async function getDoctors(): Promise<Doctor[]> {
-  return fetchApi("/doctors", { method: "GET" }, async () => [
+  const result = await fetchApi<any>("/doctors", { method: "GET" }, async () => [
+    {
+      externalDoctorId: "6b044cd63434d71f2873d49f",
+      name: "Dr. Zaid Khouri",
+      phone: "0933112244",
+      address: "Shaalan Pet Clinic, Damascus",
+      clinicName: "Shaalan Pet Clinic",
+      consultationPrice: 35000,
+      avgRating: 5.0,
+      ratingsCount: 5,
+    },
     {
       externalDoctorId: "vet_101",
       name: "Dr. Leen Khalil",
@@ -62,17 +72,22 @@ export async function getDoctors(): Promise<Doctor[]> {
       avgRating: 4.8,
       ratingsCount: 23,
     },
-    {
-      externalDoctorId: "vet_102",
-      name: "Dr. Omar Saleh",
-      phone: "0944556677",
-      address: "Damascus - Mezzeh",
-      clinicName: "Rafeeq Vet Center",
-      consultationPrice: 45000,
-      avgRating: 4.6,
-      ratingsCount: 15,
-    },
   ]);
+
+  const rawList = Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
+  return rawList.map((d: any) => ({
+    id: d.id || d.doctorId || d.externalDoctorId,
+    doctorId: d.id || d.doctorId || d.externalDoctorId,
+    externalDoctorId: d.id || d.doctorId || d.externalDoctorId,
+    name: d.name,
+    phone: d.phone,
+    address: d.address,
+    clinicName: d.clinicName || "Pet Clinic",
+    consultationPrice: d.consultationPrice || 35000,
+    avgRating: typeof d.avgRating === "number" ? d.avgRating : 5.0,
+    ratingsCount: typeof d.ratingsCount === "number" ? d.ratingsCount : 0,
+    status: d.status || "available",
+  }));
 }
 
 export async function getDoctorSlots(externalDoctorId: string): Promise<ExternalSlotDto[]> {
@@ -106,8 +121,15 @@ export async function bookVetAppointment(payload: {
   petId: string;
 }): Promise<{ referenceCode: string; status: BookingStatus }> {
   return fetchApi(
-    "/vet-bookings",
-    { method: "POST", body: JSON.stringify(payload) },
+    "/bookings-vet",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        doctorId: payload.externalDoctorId,
+        slotId: payload.externalSlotId,
+        petId: payload.petId,
+      }),
+    },
     async () => ({ referenceCode: `VET-${Date.now().toString().slice(-5)}`, status: "pending" })
   );
 }
@@ -237,7 +259,7 @@ export async function updateVetProfileInfo(payload: {
   specialization?: string;
 }): Promise<VetDoctorAccount> {
   return fetchApi(
-    `/admin/doctors/${payload.externalDoctorId}`,
+    `/me/profile`,
     {
       method: "PATCH",
       body: JSON.stringify(payload),

@@ -1,15 +1,23 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class BookVetDto {
-  @IsNotEmpty({ message: 'Please fill in all fields.' })
+  @IsOptional()
   @IsString()
-  doctorId: string;
+  doctorId?: string;
 
-  @IsNotEmpty({ message: 'Please select a time slot.' })
+  @IsOptional()
   @IsString()
-  slotId: string;
+  externalDoctorId?: string;
 
-  @IsNotEmpty({ message: 'Please fill in all fields.' })
+  @IsOptional()
   @IsString()
-  petId: string;
+  slotId?: string;
+
+  @IsOptional()
+  @IsString()
+  externalSlotId?: string;
+
+  @IsOptional()
+  @IsString()
+  petId?: string;
 }

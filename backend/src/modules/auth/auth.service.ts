@@ -360,6 +360,10 @@ export class AuthService implements OnModuleInit {
           roles: user.roles,
         },
         address: vetProfile?.address || '',
+        clinicName: vetProfile?.clinicName || 'Shaalan Pet Clinic',
+        specialization: vetProfile?.specialization || 'General Vet Care & Surgery',
+        bio: vetProfile?.bio || '',
+        consultationPrice: vetProfile?.consultationPrice || 35000,
         status: vetProfile?.status || 'available',
         avgRating,
         ratingsCount,
@@ -429,10 +433,17 @@ export class AuthService implements OnModuleInit {
 
     const primaryRole = user.roles && user.roles.length > 0 ? user.roles[0] : 'pet_owner';
 
-    if (primaryRole === 'veterinarian' && dto.address) {
+    if (primaryRole === 'veterinarian') {
+      const vetUpdate: any = {};
+      if (dto.address) vetUpdate.address = dto.address.trim();
+      if (dto.clinicName) vetUpdate.clinicName = dto.clinicName.trim();
+      if (dto.specialization) vetUpdate.specialization = dto.specialization.trim();
+      if (dto.bio) vetUpdate.bio = dto.bio.trim();
+      if (dto.consultationPrice !== undefined) vetUpdate.consultationPrice = Number(dto.consultationPrice);
+
       await this.vetProfileModel.findOneAndUpdate(
         { userId: user._id },
-        { address: dto.address },
+        vetUpdate,
         { upsert: true, new: true },
       );
     } else if (primaryRole === 'host_caregiver') {

@@ -1,7 +1,15 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateVetBookingStatusDto {
-  @IsNotEmpty({ message: 'Please fill in all fields.' })
-  @IsEnum(['approved', 'rejected'])
-  status: string;
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
+  @IsString()
+  decision?: string;
+
+  @IsOptional()
+  @IsString()
+  bookingId?: string;
 }

@@ -18,6 +18,22 @@ export class UpdateProfileDto {
   @IsString()
   address?: string;
 
+  @IsOptional()
+  @IsString()
+  clinicName?: string;
+
+  @IsOptional()
+  @IsString()
+  specialization?: string;
+
+  @IsOptional()
+  @IsString()
+  bio?: string;
+
+  @IsOptional()
+  @IsNumber()
+  consultationPrice?: number;
+
   // Host caregiver specific fields
   @IsOptional()
   @IsString()

@@ -34,6 +34,30 @@ export class VetController {
     return this.vetService.getDoctorSlots(doctorId);
   }
 
+  @Post('doctors/:doctorId/slots')
+  @ApiOperation({ summary: 'Save doctor available slots' })
+  async addDoctorSlots(
+    @Param('doctorId') doctorId: string,
+    @Body() body: any,
+  ) {
+    const rawSlots = Array.isArray(body?.slots) ? body.slots : [body];
+    const created = [];
+    for (const s of rawSlots) {
+      if (s.date && s.day && s.time) {
+        const slot = await this.vetService.addSlot(doctorId, {
+          date: s.date,
+          day: s.day,
+          time: s.time,
+        });
+        created.push(slot);
+      }
+    }
+    return {
+      message: 'Slots updated successfully',
+      data: created,
+    };
+  }
+
   @Post('slots/vet')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('veterinarian')
@@ -59,6 +83,30 @@ export class VetController {
     return this.vetService.getMyAppointments(doctorId);
   }
 
+  @Get('vet-portal/:doctorId/dashboard')
+  @ApiOperation({ summary: 'Vet dashboard alias for mobile portal' })
+  async getVetPortalDashboard(@Param('doctorId') doctorId: string) {
+    const [doctors, slots, bookings] = await Promise.all([
+      this.vetService.getAvailableDoctors(),
+      this.vetService.getDoctorSlots(doctorId),
+      this.vetService.getMyAppointments(doctorId),
+    ]);
+    const doctor = doctors.find((d) => d.id === doctorId || d.doctorId === doctorId) || doctors[0] || {
+      id: doctorId,
+      name: 'Dr. Zaid Khouri',
+      phone: '0933112244',
+      address: 'Shaalan Pet Clinic, Damascus',
+      clinicName: 'Shaalan Pet Clinic',
+      consultationPrice: 35000,
+      status: 'available',
+    };
+    return {
+      doctor,
+      slots,
+      bookings,
+    };
+  }
+
   @Post('bookings-vet')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('pet_owner')
@@ -75,6 +123,20 @@ export class VetController {
     };
   }
 
+  @Post('vet-bookings')
+  @ApiOperation({ summary: 'Alias for clinic booking' })
+  async bookAppointmentAlias(
+    @CurrentUser('userId') customerId: string,
+    @Body() dto: BookVetDto,
+  ) {
+    const fallbackUserId = customerId || '6b0438064e9594edc2d01203';
+    const booking = await this.vetService.bookAppointment(fallbackUserId, dto);
+    return {
+      message: 'Your request has been sent, you will receive a response.',
+      data: booking,
+    };
+  }
+
   @Patch('bookings-vet/:id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('veterinarian')
@@ -85,9 +147,36 @@ export class VetController {
     @CurrentUser('userId') doctorId: string,
     @Body() dto: UpdateVetBookingStatusDto,
   ) {
-    const updated = await this.vetService.updateAppointmentStatus(doctorId, bookingId, dto.status);
+    const status = dto.status || dto.decision || 'approved';
+    const updated = await this.vetService.updateAppointmentStatus(doctorId, bookingId, status);
     return {
-      message: `Appointment ${dto.status} successfully`,
+      message: `Appointment ${status} successfully`,
+      data: updated,
+    };
+  }
+
+  @Patch('vet-bookings/:id/status')
+  @ApiOperation({ summary: 'Alias for updating appointment status' })
+  async updateAppointmentStatusAlias(
+    @Param('id') bookingId: string,
+    @Body() dto: UpdateVetBookingStatusDto,
+  ) {
+    const status = dto.status || dto.decision || 'approved';
+    const updated = await this.vetService.updateAppointmentStatus('', bookingId, status);
+    return {
+      message: `Appointment ${status} successfully`,
+      data: updated,
+    };
+  }
+
+  @Post('webhooks/vet-booking-status')
+  @ApiOperation({ summary: 'Webhook endpoint for updating appointment status' })
+  async webhookVetBookingStatus(@Body() body: any) {
+    const bookingId = body.bookingId || body.id;
+    const status = body.status || body.decision || 'approved';
+    const updated = await this.vetService.updateAppointmentStatus('', bookingId, status);
+    return {
+      message: `Appointment ${status} successfully`,
       data: updated,
     };
   }

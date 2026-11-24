@@ -6,6 +6,7 @@ import { useColorScheme } from "nativewind";
 import NavBar from "../components/NavBar";
 import RafeeqBottomNav, { MainTabKey } from "../components/RafeeqBottomNav";
 import { resolveAppRole, AppRole } from "../utils/roleRouting";
+import { useAuth } from "../context/AuthContext";
 
 import SplashScreen from "../screens/auth/SplashScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
@@ -34,6 +35,7 @@ export default function Index() {
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
+  const { user } = useAuth();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authStage, setAuthStage] = useState<AuthStage>("Splash");
@@ -44,14 +46,14 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<MainTabKey>("Doctors");
 
   // Vet state
-  const vetDoctorId = "vet_101";
-  const vetDoctorName = "Dr. Leen Khalil";
+  const vetDoctorId = user?.id || "6b044cd63434d71f2873d49f";
+  const vetDoctorName = user?.name || "Dr. Zaid Khouri";
   const [vetScreen, setVetScreen] = useState<
     "VetSchedule" | "VetBookings" | "VetProfile"
   >("VetSchedule");
 
   // Host state
-  const hostName = "Salma Darwish";
+  const hostName = user?.name || "Tarek Mansour";
   const [hostScreen, setHostScreen] = useState<"HostBookings" | "HostProfile">(
     "HostBookings"
   );

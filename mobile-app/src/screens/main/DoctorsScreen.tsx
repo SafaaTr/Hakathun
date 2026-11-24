@@ -132,15 +132,12 @@ export default function DoctorsScreen() {
     const loadDoctors = async () => {
       setLoadingDoctors(true);
       try {
-        const [doctorList, firstSlots] = await Promise.all([
-          getDoctors(),
-          getDoctorSlots("vet_101"),
-        ]);
+        const doctorList = await getDoctors();
         if (cancelled) return;
 
         const normalizedSlots = (slots: ExternalSlotDto[]): SlotDto[] =>
           slots.map((slot) => ({
-            slotId: slot.externalSlotId,
+            slotId: slot.externalSlotId || (slot as any).slotId || (slot as any)._id,
             date: slot.date,
             day: slot.day,
             time: slot.time,
@@ -149,17 +146,16 @@ export default function DoctorsScreen() {
 
         const normalized: DoctorItem[] = await Promise.all(
           doctorList.map(async (doctor: Doctor) => {
-            const slots = doctor.externalDoctorId === "vet_101"
-              ? firstSlots
-              : await getDoctorSlots(doctor.externalDoctorId);
+            const docId = (doctor as any).id || (doctor as any).doctorId || doctor.externalDoctorId;
+            const slots = await getDoctorSlots(docId);
             return {
-              id: doctor.externalDoctorId,
+              id: docId,
               name: doctor.name,
-              specialty: doctor.clinicName || "Veterinary Care",
+              specialty: doctor.clinicName || (doctor as any).specialization || "Veterinary Care",
               address: doctor.address,
-              price: doctor.consultationPrice || 0,
-              avgRating: doctor.avgRating,
-              ratingsCount: doctor.ratingsCount,
+              price: doctor.consultationPrice || 35000,
+              avgRating: doctor.avgRating || 5.0,
+              ratingsCount: doctor.ratingsCount || 0,
               slots: normalizedSlots(slots),
             };
           })

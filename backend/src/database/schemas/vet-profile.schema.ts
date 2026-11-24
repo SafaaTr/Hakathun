@@ -17,6 +17,18 @@ export class VetProfile {
     default: 'available',
   })
   status: string;
+
+  @Prop({ default: '' })
+  clinicName?: string;
+
+  @Prop({ default: '' })
+  specialization?: string;
+
+  @Prop({ default: '' })
+  bio?: string;
+
+  @Prop({ default: 35000 })
+  consultationPrice?: number;
 }
 
 export const VetProfileSchema = SchemaFactory.createForClass(VetProfile);
