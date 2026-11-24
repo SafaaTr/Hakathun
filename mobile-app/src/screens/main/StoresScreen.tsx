@@ -266,7 +266,7 @@ export default function StoresScreen() {
               </Text>
               <Text className="text-xs text-slate-500">{prod.details}</Text>
               <Text className="text-sm font-extrabold text-[#557FB3]">
-                {prod.price.toLocaleString()} SYP
+                {(Number(prod.price) || 0).toLocaleString()} SYP
               </Text>
               <AppButton
                 title="Add to cart"
@@ -319,13 +319,13 @@ export default function StoresScreen() {
                       {item.name} (x{item.quantity})
                     </Text>
                     <Text className="font-bold text-[#557FB3]">
-                      {(item.price * item.quantity).toLocaleString()} SYP
+                      {(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString()} SYP
                     </Text>
                   </View>
                 ))}
 
                 <Text className="text-lg font-extrabold text-[#2A4D75] mt-2">
-                  Total: {totalPrice.toLocaleString()} SYP
+                  Total: {(Number(totalPrice) || 0).toLocaleString()} SYP
                 </Text>
 
                 <TextInput

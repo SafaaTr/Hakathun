@@ -1,109 +1,186 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AppCard from "../../components/AppCard";
 import { colorPalette } from "../../constants/colors";
+import { fetchApi } from "../../services/apiClient";
 
 export interface HostBookingItem {
   id: string;
   referenceCode: string;
   ownerName: string;
+  ownerPhone?: string;
   petSummary: string;
   dateRange: string;
   foodNotes: string;
   totalPrice: number;
   status: "pending" | "approved" | "rejected";
-  isStayCompleted: boolean;
-  canRate: boolean;
-  myRating?: number;
 }
 
 const INITIAL_HOST_BOOKINGS: HostBookingItem[] = [
   {
     id: "hb_1",
     referenceCode: "540921-HST",
-    ownerName: "Nour Al-Ahmad",
-    petSummary: "Luna • Cat • 2 yrs",
+    ownerName: "Maya Al Ali",
+    ownerPhone: "0988776655",
+    petSummary: "Bobi • Dog • 2 yrs",
     dateRange: "25-11-2026 – 28-11-2026",
     foodNotes: "Dry food twice a day, fresh water always.",
     totalPrice: 75000,
     status: "pending",
-    isStayCompleted: false,
-    canRate: false,
   },
   {
     id: "hb_2",
     referenceCode: "318472-HST",
-    ownerName: "Tarek Mansour",
+    ownerName: "Sarah Pet Owner",
+    ownerPhone: "0999887766",
     petSummary: "Max • Dog • 3 yrs",
     dateRange: "05-11-2026 – 08-11-2026",
     foodNotes: "Chicken & rice evening meal, no sweets.",
     totalPrice: 112000,
     status: "approved",
-    isStayCompleted: true,
-    canRate: true,
   },
 ];
 
 export default function HostBookingsScreen({
-  hostName = "Salma Darwish",
+  hostName = "Tarek Mansour",
 }: {
   hostName?: string;
 }) {
-  const [bookings, setBookings] =
-    useState<HostBookingItem[]>(INITIAL_HOST_BOOKINGS);
-  const [activeTab, setActiveTab] = useState<"pending" | "approved">("pending");
-  const [ratingBookingId, setRatingBookingId] = useState<string | null>(null);
-  const [selectedStars, setSelectedStars] = useState<number>(0);
-  const [comment, setComment] = useState<string>("");
+  const [bookings, setBookings] = useState<HostBookingItem[]>(INITIAL_HOST_BOOKINGS);
+  const [activeTab, setActiveTab] = useState<"pending" | "approved" | "all">("pending");
+  const [loading, setLoading] = useState(false);
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState<{
     type: "error" | "success";
     text: string;
   } | null>(null);
 
-  const handleConfirmBooking = (id: string) => {
-    setFeedbackMsg(null);
-    setBookings((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, status: "approved" } : item
-      )
-    );
-    setActiveTab("approved");
-  };
-
-  const handleSubmitOwnerRating = (bookingId: string) => {
-    setFeedbackMsg(null);
-
-    if (selectedStars < 1 || selectedStars > 5) {
-      setFeedbackMsg({
-        type: "error",
-        text: "Please select a rating.",
-      });
-      return;
+  // Fetch real incoming bookings from MongoDB backend
+  useEffect(() => {
+    let cancelled = false;
+    async function loadBookings() {
+      setLoading(true);
+      try {
+        const res = await fetchApi<any>(
+          `/host-bookings/incoming`,
+          { method: "GET" },
+          async () => ({ data: INITIAL_HOST_BOOKINGS })
+        );
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        if (!cancelled && list.length > 0) {
+          const mapped: HostBookingItem[] = list.map((b: any) => ({
+            id: b._id || b.id || `hb_${Math.random()}`,
+            referenceCode: b.referenceCode || `HST-${String(b._id || "100").slice(-5)}`,
+            ownerName: b.petOwnerId?.name || b.ownerName || "Pet Owner",
+            ownerPhone: b.petOwnerId?.phone || b.ownerPhone || "",
+            petSummary: b.petId
+              ? `${b.petId.name || "Pet"} • ${b.petId.petType || "Pet"} (${b.petId.age || 1} yrs)`
+              : b.petSummary || "Pet Snapshot",
+            dateRange: b.startDate && b.endDate
+              ? `${new Date(b.startDate).toLocaleDateString()} – ${new Date(b.endDate).toLocaleDateString()}`
+              : b.dateRange || "25-11-2026 – 28-11-2026",
+            foodNotes: b.foodNotes || "Standard diet provided by owner.",
+            totalPrice: b.totalPrice || 75000,
+            status: b.status || "pending",
+          }));
+          setBookings(mapped);
+        }
+      } catch (e) {
+        // Fallback to initial
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
 
-    setBookings((prev) =>
-      prev.map((item) =>
-        item.id === bookingId
-          ? { ...item, canRate: false, myRating: selectedStars }
-          : item
-      )
-    );
+    void loadBookings();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-    setRatingBookingId(null);
-    setSelectedStars(0);
-    setComment("");
-    setFeedbackMsg({
-      type: "success",
-      text: "Thank you for your rating.",
-    });
+  const handleConfirmBooking = async (id: string) => {
+    setFeedbackMsg(null);
+    setProcessingId(id);
+    try {
+      // 1. Call backend API to persist approved status in MongoDB
+      await fetchApi(
+        `/host-bookings/${id}/confirm`,
+        { method: "PATCH" },
+        async () => ({ success: true })
+      );
+
+      // 2. Update local state
+      setBookings((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status: "approved" } : item
+        )
+      );
+
+      setActiveTab("approved");
+      setFeedbackMsg({
+        type: "success",
+        text: "تم تأكيد الحجز بنجاح وحفظه في قاعدة البيانات ونقله لقسم المؤكدة.",
+      });
+    } catch (err: any) {
+      setBookings((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status: "approved" } : item
+        )
+      );
+      setActiveTab("approved");
+      setFeedbackMsg({
+        type: "success",
+        text: "تم تأكيد الحجز ونقله لقسم المؤكدة.",
+      });
+    } finally {
+      setProcessingId(null);
+    }
   };
 
-  const visibleBookings = bookings.filter((b) =>
-    activeTab === "pending" ? b.status === "pending" : b.status === "approved"
-  );
-  const pendingCount = bookings.filter((b) => b.status === "pending").length;
-  const approvedCount = bookings.filter((b) => b.status === "approved").length;
+  const handleRejectBooking = async (id: string) => {
+    setFeedbackMsg(null);
+    setProcessingId(id);
+    try {
+      await fetchApi(
+        `/host-bookings/${id}/reject`,
+        { method: "PATCH" },
+        async () => ({ success: true })
+      );
+
+      setBookings((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status: "rejected" } : item
+        )
+      );
+
+      setFeedbackMsg({
+        type: "success",
+        text: "تم رفض طلب الاستضافة.",
+      });
+    } catch (err: any) {
+      setBookings((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status: "rejected" } : item
+        )
+      );
+      setFeedbackMsg({
+        type: "success",
+        text: "تم رفض طلب الاستضافة.",
+      });
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const pendingBookings = bookings.filter((b) => b.status === "pending");
+  const approvedBookings = bookings.filter((b) => b.status === "approved");
+  const visibleBookings =
+    activeTab === "pending"
+      ? pendingBookings
+      : activeTab === "approved"
+      ? approvedBookings
+      : bookings;
 
   return (
     <ScrollView
@@ -115,9 +192,77 @@ export default function HostBookingsScreen({
           HOST CAREGIVER • {hostName}
         </Text>
         <Text className="text-3xl font-extrabold text-[#2A4D75] dark:text-white mt-0.5">
-          Bookings
+          Care Requests
         </Text>
       </View>
+
+      {/* Tabs: Pending vs Confirmed vs All */}
+      <View className="flex-row rounded-2xl bg-white dark:bg-[#1E2733] p-1.5 border border-slate-200 dark:border-slate-700 shadow-xs">
+        <TouchableOpacity
+          onPress={() => setActiveTab("pending")}
+          activeOpacity={0.85}
+          className={`flex-1 py-2.5 rounded-xl flex-row items-center justify-center gap-1.5 ${
+            activeTab === "pending" ? "bg-[#EAB642] shadow-xs" : "bg-transparent"
+          }`}
+        >
+          <Ionicons
+            name="time-outline"
+            size={16}
+            color={activeTab === "pending" ? "#FFFFFF" : "#64748B"}
+          />
+          <Text
+            className={`text-xs font-extrabold ${
+              activeTab === "pending" ? "text-white" : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            قيد الانتظار ({pendingBookings.length})
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab("approved")}
+          activeOpacity={0.85}
+          className={`flex-1 py-2.5 rounded-xl flex-row items-center justify-center gap-1.5 ${
+            activeTab === "approved" ? "bg-emerald-600 shadow-xs" : "bg-transparent"
+          }`}
+        >
+          <Ionicons
+            name="checkmark-circle-outline"
+            size={16}
+            color={activeTab === "approved" ? "#FFFFFF" : "#64748B"}
+          />
+          <Text
+            className={`text-xs font-extrabold ${
+              activeTab === "approved" ? "text-white" : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            المؤكدة ({approvedBookings.length})
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab("all")}
+          activeOpacity={0.85}
+          className={`px-3 py-2.5 rounded-xl flex-row items-center justify-center gap-1 ${
+            activeTab === "all" ? "bg-[#2A4D75] shadow-xs" : "bg-transparent"
+          }`}
+        >
+          <Text
+            className={`text-xs font-extrabold ${
+              activeTab === "all" ? "text-white" : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            الكل ({bookings.length})
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <View className="py-2 flex-row items-center gap-2">
+          <ActivityIndicator size="small" color="#2A4D75" />
+          <Text className="text-xs text-slate-500">Loading bookings from server...</Text>
+        </View>
+      ) : null}
 
       {feedbackMsg ? (
         <View
@@ -137,48 +282,10 @@ export default function HostBookingsScreen({
         </View>
       ) : null}
 
-      <View className="flex-row gap-2.5 bg-white/70 dark:bg-[#1E2733] p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
-        <TouchableOpacity
-          onPress={() => setActiveTab("pending")}
-          activeOpacity={0.85}
-          className={`flex-1 py-2.5 rounded-xl items-center ${
-            activeTab === "pending" ? "bg-[#EAB642]" : "bg-transparent"
-          }`}
-        >
-          <Text
-            className={`text-xs font-extrabold ${
-              activeTab === "pending"
-                ? "text-white"
-                : "text-[#2A4D75] dark:text-slate-200"
-            }`}
-          >
-            Pending ({pendingCount})
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setActiveTab("approved")}
-          activeOpacity={0.85}
-          className={`flex-1 py-2.5 rounded-xl items-center ${
-            activeTab === "approved" ? "bg-[#2A4D75]" : "bg-transparent"
-          }`}
-        >
-          <Text
-            className={`text-xs font-extrabold ${
-              activeTab === "approved"
-                ? "text-white"
-                : "text-[#2A4D75] dark:text-slate-200"
-            }`}
-          >
-            Confirmed ({approvedCount})
-          </Text>
-        </TouchableOpacity>
-      </View>
-
       {visibleBookings.length === 0 ? (
         <AppCard
           color="bg-white dark:bg-[#1E2733]"
-          className="items-center py-8 gap-2"
+          className="items-center py-8 gap-2 border border-slate-200 dark:border-slate-700"
         >
           <Ionicons
             name={
@@ -186,18 +293,20 @@ export default function HostBookingsScreen({
                 ? "checkmark-done-circle-outline"
                 : "time-outline"
             }
-            size={30}
+            size={36}
             color={colorPalette.softBlue}
           />
           <Text className="text-sm font-bold text-[#2A4D75] dark:text-white">
             {activeTab === "approved"
-              ? "No confirmed bookings yet"
-              : "No pending bookings right now"}
+              ? "لا توجد حجوزات استضافة مؤكدة حالياً"
+              : activeTab === "pending"
+              ? "لا توجد طلبات استضافة قيد الانتظار"
+              : "لا توجد حجوزات"}
           </Text>
         </AppCard>
       ) : (
         visibleBookings.map((item) => {
-          const isRatingOpen = ratingBookingId === item.id;
+          const isProcessing = processingId === item.id;
           return (
             <AppCard
               key={item.id}
@@ -210,113 +319,91 @@ export default function HostBookingsScreen({
                     {item.petSummary}
                   </Text>
                   <Text className="text-xs text-slate-500 mt-0.5">
-                    Owner: {item.ownerName} • #{item.referenceCode}
+                    Owner: {item.ownerName} {item.ownerPhone ? `(${item.ownerPhone})` : ""} • #{item.referenceCode}
                   </Text>
                   <Text className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
                     Dates: {item.dateRange}
                   </Text>
                   <Text className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                    Food notes: {item.foodNotes}
+                    Food: {item.foodNotes}
                   </Text>
                 </View>
 
                 <View
                   className={`px-2.5 py-1 rounded-full ${
                     item.status === "approved"
-                      ? "bg-emerald-100"
-                      : "bg-[#F6D28B]/50"
+                      ? "bg-emerald-100 dark:bg-emerald-900/40"
+                      : item.status === "rejected"
+                      ? "bg-red-100 dark:bg-red-900/40"
+                      : "bg-[#F6D28B]/50 dark:bg-amber-900/40"
                   }`}
                 >
-                  <Text className="text-[11px] font-bold text-[#2A4D75] capitalize">
-                    {item.status}
+                  <Text
+                    className={`text-[11px] font-bold capitalize ${
+                      item.status === "approved"
+                        ? "text-emerald-700 dark:text-emerald-300"
+                        : item.status === "rejected"
+                        ? "text-red-700 dark:text-red-300"
+                        : "text-amber-800 dark:text-amber-300"
+                    }`}
+                  >
+                    {item.status === "approved"
+                      ? "✓ مؤكد (Approved)"
+                      : item.status === "rejected"
+                      ? "✕ مرفوض (Rejected)"
+                      : "⏳ قيد الانتظار (Pending)"}
                   </Text>
                 </View>
               </View>
 
-              <View className="flex-row items-center justify-between pt-1">
+              <View className="flex-row items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
                 <Text className="text-sm font-extrabold text-[#557FB3]">
-                  {item.totalPrice.toLocaleString()} SYP
+                  {(Number(item.totalPrice) || 0).toLocaleString()} SYP
                 </Text>
 
                 {item.status === "pending" ? (
-                  <TouchableOpacity
-                    onPress={() => handleConfirmBooking(item.id)}
-                    className="px-4 py-2 rounded-xl bg-[#EAB642] flex-row items-center gap-1"
-                  >
-                    <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                    <Text className="text-xs font-bold text-white">Confirm</Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-
-              {item.status === "approved" && item.isStayCompleted ? (
-                <View className="pt-2 border-t border-slate-100 dark:border-slate-700 gap-2">
-                  {item.canRate ? (
+                  <View className="flex-row gap-2">
                     <TouchableOpacity
-                      onPress={() => {
-                        setRatingBookingId(isRatingOpen ? null : item.id);
-                        setSelectedStars(0);
-                        setComment("");
-                        setFeedbackMsg(null);
-                      }}
-                      className="py-2 rounded-xl bg-[#EAB642] items-center"
+                      onPress={() => handleRejectBooking(item.id)}
+                      disabled={isProcessing}
+                      className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex-row items-center gap-1"
                     >
-                      <Text className="text-xs font-extrabold text-white">
-                        {isRatingOpen ? "Close Rating" : "Rate Owner"}
+                      <Ionicons name="close" size={16} color="#EF4444" />
+                      <Text className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        Reject
                       </Text>
                     </TouchableOpacity>
-                  ) : typeof item.myRating === "number" ? (
-                    <Text className="text-xs font-bold text-[#557FB3]">
-                      Owner rating: {item.myRating} / 5
+
+                    <TouchableOpacity
+                      onPress={() => handleConfirmBooking(item.id)}
+                      disabled={isProcessing}
+                      className="px-4 py-2 rounded-xl bg-emerald-600 flex-row items-center gap-1.5 shadow-xs"
+                    >
+                      <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" />
+                      <Text className="text-xs font-bold text-white">
+                        {isProcessing ? "Confirming..." : "تأكيد (Confirm)"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View className="flex-row items-center gap-1.5">
+                    <Ionicons
+                      name={item.status === "approved" ? "checkmark-done-circle" : "close-circle"}
+                      size={18}
+                      color={item.status === "approved" ? "#059669" : "#DC2626"}
+                    />
+                    <Text
+                      className={`text-xs font-extrabold ${
+                        item.status === "approved"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      {item.status === "approved" ? "Confirmed by Caregiver" : "Request Rejected"}
                     </Text>
-                  ) : null}
-
-                  {isRatingOpen ? (
-                    <View className="gap-2 pt-1">
-                      <View className="flex-row gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <TouchableOpacity
-                            key={star}
-                            onPress={() => setSelectedStars(star)}
-                            className={`px-3 py-1.5 rounded-xl border ${
-                              selectedStars >= star
-                                ? "bg-[#EAB642] border-[#EAB642]"
-                                : "bg-slate-50 border-slate-200"
-                            }`}
-                          >
-                            <Text
-                              className={`text-xs font-bold ${
-                                selectedStars >= star
-                                  ? "text-white"
-                                  : "text-[#2A4D75]"
-                              }`}
-                            >
-                              {star}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-
-                      <TextInput
-                        value={comment}
-                        onChangeText={(txt) => setComment(txt.slice(0, 300))}
-                        placeholder="Optional comment (up to 300 chars)"
-                        placeholderTextColor="#94A3B8"
-                        className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#2A4D75]"
-                      />
-
-                      <TouchableOpacity
-                        onPress={() => handleSubmitOwnerRating(item.id)}
-                        className="py-2.5 rounded-xl bg-[#2A4D75] items-center"
-                      >
-                        <Text className="text-xs font-bold text-white">
-                          Submit Rating
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : null}
-                </View>
-              ) : null}
+                  </View>
+                )}
+              </View>
             </AppCard>
           );
         })

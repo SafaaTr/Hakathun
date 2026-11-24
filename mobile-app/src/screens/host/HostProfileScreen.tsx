@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AppCard from "../../components/AppCard";
 import { colorPalette } from "../../constants/colors";
+import { useAuth } from "../../context/AuthContext";
+import { fetchApi } from "../../services/apiClient";
 
 type PlaceType = "home" | "barn";
 type PricingType = "free" | "paid";
@@ -46,11 +49,15 @@ export default function HostProfileScreen({
   hostName?: string;
   onLogout: () => void;
 }) {
+  const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState<HostProfileData>({
     ...INITIAL_HOST_PROFILE,
-    name: hostName || INITIAL_HOST_PROFILE.name,
+    name: user?.name || hostName || INITIAL_HOST_PROFILE.name,
+    phone: user?.phone || INITIAL_HOST_PROFILE.phone,
   });
 
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [nameInput, setNameInput] = useState(profile.name);
   const [phoneInput, setPhoneInput] = useState(profile.phone);
@@ -75,7 +82,64 @@ export default function HostProfileScreen({
   } | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const handleSaveProfile = () => {
+  useEffect(() => {
+    let active = true;
+    async function loadHostProfile() {
+      setLoading(true);
+      try {
+        const res = await fetchApi<any>("/me/profile", { method: "GET" });
+        const resData = res?.data || res;
+        if (resData && active) {
+          const u = resData.user || {};
+          const hp = resData.hostProfile || {};
+          const avgRating = typeof resData.avgRating === "number" ? resData.avgRating : 5.0;
+          const ratingsCount = typeof resData.ratingsCount === "number" ? resData.ratingsCount : 1;
+
+          const loadedName = u.name || user?.name || hostName || INITIAL_HOST_PROFILE.name;
+          const loadedPhone = u.phone || user?.phone || INITIAL_HOST_PROFILE.phone;
+          const loadedPlaceType = (hp.placeType as PlaceType) || "home";
+          const loadedAddress = hp.address || INITIAL_HOST_PROFILE.address;
+          const loadedAcceptedPet = hp.acceptedPetType || INITIAL_HOST_PROFILE.acceptedPetType;
+          const loadedPricingType = (hp.pricingType as PricingType) || "paid";
+          const loadedDailyPrice = typeof hp.dailyPrice === "number" ? hp.dailyPrice : INITIAL_HOST_PROFILE.dailyPrice;
+          const loadedFoodCost = hp.foodCost || INITIAL_HOST_PROFILE.foodCost;
+
+          setNameInput(loadedName);
+          setPhoneInput(loadedPhone);
+          setPlaceTypeInput(loadedPlaceType);
+          setAddressInput(loadedAddress);
+          setAcceptedPetInput(loadedAcceptedPet);
+          setPricingTypeInput(loadedPricingType);
+          setDailyPriceInput(loadedDailyPrice ? String(loadedDailyPrice) : "");
+          setFoodCostInput(loadedFoodCost);
+
+          setProfile({
+            name: loadedName,
+            phone: loadedPhone,
+            placeType: loadedPlaceType,
+            address: loadedAddress,
+            acceptedPetType: loadedAcceptedPet,
+            pricingType: loadedPricingType,
+            dailyPrice: loadedDailyPrice,
+            foodCost: loadedFoodCost,
+            avgRating,
+            ratingsCount,
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to load host profile from API:", err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void loadHostProfile();
+    return () => {
+      active = false;
+    };
+  }, [user?.id, user?.name]);
+
+  const handleSaveProfile = async () => {
     setFeedback(null);
 
     const trimmedName = nameInput.trim();
@@ -94,7 +158,7 @@ export default function HostProfileScreen({
       ) {
         setFeedback({
           type: "error",
-          text: "Please fill in all fields.",
+          text: "Please enter a valid daily price.",
         });
         return;
       }
@@ -115,23 +179,57 @@ export default function HostProfileScreen({
       return;
     }
 
-    setProfile((prev) => ({
-      ...prev,
-      name: trimmedName,
-      phone: trimmedPhone,
-      placeType: placeTypeInput,
-      address: trimmedAddress,
-      acceptedPetType: trimmedAcceptedPet,
-      pricingType: pricingTypeInput,
-      dailyPrice: pricingTypeInput === "paid" ? parsedDailyPrice : null,
-      foodCost: trimmedFoodCost,
-    }));
+    setSaving(true);
+    try {
+      const payload = {
+        name: trimmedName,
+        phone: trimmedPhone,
+        placeType: placeTypeInput,
+        address: trimmedAddress,
+        acceptedPetType: trimmedAcceptedPet,
+        pricingType: pricingTypeInput,
+        dailyPrice: pricingTypeInput === "paid" ? parsedDailyPrice : null,
+        foodCost: trimmedFoodCost,
+      };
 
-    setIsEditing(false);
-    setFeedback({
-      type: "success",
-      text: "Your profile has been updated.",
-    });
+      const res = await fetchApi<any>("/me/profile", {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+
+      const resData = res?.data || res;
+      const updatedUser = resData?.user;
+
+      setProfile((prev) => ({
+        ...prev,
+        name: updatedUser?.name || trimmedName,
+        phone: updatedUser?.phone || trimmedPhone,
+        placeType: placeTypeInput,
+        address: trimmedAddress,
+        acceptedPetType: trimmedAcceptedPet,
+        pricingType: pricingTypeInput,
+        dailyPrice: pricingTypeInput === "paid" ? parsedDailyPrice : null,
+        foodCost: trimmedFoodCost,
+      }));
+
+      updateUser({
+        name: updatedUser?.name || trimmedName,
+        phone: updatedUser?.phone || trimmedPhone,
+      });
+
+      setIsEditing(false);
+      setFeedback({
+        type: "success",
+        text: "تم حفظ وتحديث بيانات الحساب بنجاح في قاعدة البيانات.",
+      });
+    } catch (err: any) {
+      setFeedback({
+        type: "error",
+        text: err?.message || "فشل في حفظ البيانات. يرجى المحاولة ثانية.",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -229,11 +327,11 @@ export default function HostProfileScreen({
                 {profile.pricingType}
               </Text>
             </Text>
-            {profile.pricingType === "paid" && typeof profile.dailyPrice === "number" ? (
+            {profile.pricingType === "paid" && profile.dailyPrice !== null && profile.dailyPrice !== undefined ? (
               <Text className="text-xs text-slate-600 dark:text-slate-300">
                 Daily Price:{" "}
                 <Text className="font-bold text-[#557FB3]">
-                  {profile.dailyPrice.toLocaleString()} SYP
+                  {(Number(profile.dailyPrice) || 0).toLocaleString()} SYP
                 </Text>
               </Text>
             ) : null}
@@ -342,11 +440,16 @@ export default function HostProfileScreen({
 
             <TouchableOpacity
               onPress={handleSaveProfile}
+              disabled={saving}
               className="py-2.5 rounded-xl bg-[#EAB642] items-center"
             >
-              <Text className="text-xs font-extrabold text-white">
-                Save Changes
-              </Text>
+              {saving ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text className="text-xs font-extrabold text-white">
+                  Save Changes
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         )}

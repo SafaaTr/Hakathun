@@ -246,7 +246,7 @@ export default function MyBookingsScreen() {
                   {booking.dateTime}
                 </Text>
                 <Text className="text-sm font-extrabold text-[#557FB3]">
-                  {booking.price.toLocaleString()} SYP
+                  {(Number(booking.price) || 0).toLocaleString()} SYP
                 </Text>
               </View>
 

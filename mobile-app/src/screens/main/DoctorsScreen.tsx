@@ -343,7 +343,7 @@ export default function DoctorsScreen() {
                     </Text>
                   </View>
                   <Text className="text-xs font-extrabold text-[#557FB3]">
-                    {doc.price.toLocaleString()} SYP
+                    {(Number(doc.price) || 0).toLocaleString()} SYP
                   </Text>
                 </View>
 

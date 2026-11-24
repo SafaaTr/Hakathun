@@ -81,12 +81,12 @@ export class HostController {
     return this.hostService.getMyBookings(userId);
   }
 
-  @Patch('host-bookings/:id/confirm')
+  @Post('host-bookings/:id/confirm')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('host_caregiver')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Host approves an incoming booking' })
-  async confirmBooking(
+  @ApiOperation({ summary: 'Host approves an incoming booking (POST)' })
+  async confirmBookingPost(
     @Param('id') id: string,
     @CurrentUser('userId') userId: string,
   ) {
@@ -97,18 +97,70 @@ export class HostController {
     };
   }
 
-  @Patch('host-bookings/:id/reject')
+  @Patch('host-bookings/:id/confirm')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('host_caregiver')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Host rejects an incoming booking' })
-  async rejectBooking(
+  @ApiOperation({ summary: 'Host approves an incoming booking (PATCH)' })
+  async confirmBookingPatch(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+  ) {
+    const updated = await this.hostService.confirmBooking(userId, id);
+    return {
+      message: 'Booking confirmed successfully',
+      data: updated,
+    };
+  }
+
+  @Post('host-bookings/:id/reject')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('host_caregiver')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Host rejects an incoming booking (POST)' })
+  async rejectBookingPost(
     @Param('id') id: string,
     @CurrentUser('userId') userId: string,
   ) {
     const updated = await this.hostService.rejectBooking(userId, id);
     return {
       message: 'Booking rejected successfully',
+      data: updated,
+    };
+  }
+
+  @Patch('host-bookings/:id/reject')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('host_caregiver')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Host rejects an incoming booking (PATCH)' })
+  async rejectBookingPatch(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+  ) {
+    const updated = await this.hostService.rejectBooking(userId, id);
+    return {
+      message: 'Booking rejected successfully',
+      data: updated,
+    };
+  }
+
+  @Patch('host-bookings/:id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('host_caregiver')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update host booking status' })
+  async updateStatus(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+    @Body() body: any,
+  ) {
+    const status = body?.status || body?.decision || 'approved';
+    const updated = status === 'approved' 
+      ? await this.hostService.confirmBooking(userId, id)
+      : await this.hostService.rejectBooking(userId, id);
+    return {
+      message: `Booking ${status} successfully`,
       data: updated,
     };
   }

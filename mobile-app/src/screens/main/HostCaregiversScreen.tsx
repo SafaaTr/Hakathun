@@ -154,7 +154,7 @@ export default function HostCaregiversScreen() {
 
         const priceLabel =
           cg.pricingType === "paid" && typeof cg.dailyPrice === "number"
-            ? `${cg.dailyPrice.toLocaleString()} SYP / day`
+            ? `${(Number(cg.dailyPrice) || 0).toLocaleString()} SYP / day`
             : "Free";
 
         return (
