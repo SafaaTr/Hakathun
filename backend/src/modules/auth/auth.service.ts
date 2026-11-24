@@ -472,6 +472,12 @@ export class AuthService implements OnModuleInit {
 
     return {
       message: 'Your profile has been updated.',
+      user: {
+        id: user._id,
+        name: user.name,
+        phone: user.phone,
+        roles: user.roles,
+      },
     };
   }
 }

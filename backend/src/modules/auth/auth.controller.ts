@@ -82,7 +82,7 @@ export class ProfileController {
     const result = await this.authService.updateProfile(userId, dto);
     return {
       message: result.message,
-      data: null,
+      data: result,
     };
   }
 }

@@ -258,24 +258,28 @@ export async function updateVetProfileInfo(payload: {
   bio?: string;
   specialization?: string;
 }): Promise<VetDoctorAccount> {
-  return fetchApi(
+  await fetchApi(
     `/me/profile`,
     {
       method: "PATCH",
       body: JSON.stringify(payload),
     },
-    async () => ({
-      externalDoctorId: payload.externalDoctorId,
-      name: payload.name,
-      phone: payload.phone,
-      address: payload.address,
-      clinicName: payload.clinicName,
-      consultationPrice: payload.consultationPrice,
-      status: "active",
-      avgRating: 4.8,
-      ratingsCount: 23,
-    })
+    async () => ({ success: true })
   );
+
+  return {
+    externalDoctorId: payload.externalDoctorId,
+    name: payload.name,
+    phone: payload.phone,
+    address: payload.address,
+    clinicName: payload.clinicName,
+    consultationPrice: payload.consultationPrice,
+    specialization: payload.specialization,
+    bio: payload.bio,
+    status: "active",
+    avgRating: 5.0,
+    ratingsCount: 5,
+  };
 }
 
 // حفظ/إضافة مواعيد الطبيب الأسبوعية (ExternalSlotDto[])

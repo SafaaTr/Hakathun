@@ -34,6 +34,19 @@ const INITIAL_VET_BOOKINGS: VetBookingRequest[] = [
     status: "pending",
   },
   {
+    id: "vb_3",
+    doctorId: "6b044cd63434d71f2873d49f",
+    referenceCode: "VET-882194",
+    customerName: "Sami Mansour",
+    customerPhone: "0944112233",
+    petSummary: "Bella • Dog (1 yr)",
+    appointmentDate: "2026-11-26",
+    appointmentDay: "Thu",
+    appointmentTime: "14:00",
+    slotStatus: "available",
+    status: "pending",
+  },
+  {
     id: "vb_2",
     doctorId: "6b044cd63434d71f2873d49f",
     referenceCode: "VET-618290",
@@ -54,6 +67,7 @@ export default function VetBookingsScreen({
   externalDoctorId?: string;
 }) {
   const [bookings, setBookings] = useState<VetBookingRequest[]>(INITIAL_VET_BOOKINGS);
+  const [activeTab, setActiveTab] = useState<"pending" | "approved" | "all">("pending");
   const [loading, setLoading] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: "error" | "success"; text: string } | null>(null);
@@ -129,11 +143,10 @@ export default function VetBookingsScreen({
         type: "success",
         text:
           decision === "approved"
-            ? "تم تأكيد الحجز بنجاح وحجز الموعد للطبيب."
-            : "تم رفض طلب الحجز وإعادة الموعد للمتاح.",
+            ? "تم تأكيد الحجز بنجاح ونقله إلى قسم المؤكدة (Approved)."
+            : "تم رفض طلب الحجز.",
       });
     } catch (err: any) {
-      // Update locally so UI is responsive even if network dropped
       setBookings((prev) =>
         prev.map((item) => {
           if (item.id !== id) return item;
@@ -148,13 +161,22 @@ export default function VetBookingsScreen({
         type: "success",
         text:
           decision === "approved"
-            ? "تم تأكيد الحجز بنجاح (Confirmed)."
-            : "تم رفض الحجز (Rejected).",
+            ? "تم تأكيد الحجز بنجاح ونقله إلى قسم المؤكدة (Approved)."
+            : "تم رفض الحجز.",
       });
     } finally {
       setProcessingId(null);
     }
   };
+
+  const pendingBookings = bookings.filter((b) => b.status === "pending");
+  const approvedBookings = bookings.filter((b) => b.status === "approved");
+  const displayedBookings =
+    activeTab === "pending"
+      ? pendingBookings
+      : activeTab === "approved"
+      ? approvedBookings
+      : bookings;
 
   return (
     <ScrollView
@@ -170,10 +192,74 @@ export default function VetBookingsScreen({
         </Text>
       </View>
 
+      {/* Tabs: Pending vs Approved vs All */}
+      <View className="flex-row rounded-2xl bg-white dark:bg-[#1E2733] p-1.5 border border-slate-200 dark:border-slate-700 shadow-xs">
+        <TouchableOpacity
+          onPress={() => setActiveTab("pending")}
+          className={`flex-1 py-2.5 rounded-xl flex-row items-center justify-center gap-1.5 ${
+            activeTab === "pending"
+              ? "bg-[#EAB642] shadow-xs"
+              : "bg-transparent"
+          }`}
+        >
+          <Ionicons
+            name="time-outline"
+            size={16}
+            color={activeTab === "pending" ? "#FFFFFF" : "#64748B"}
+          />
+          <Text
+            className={`text-xs font-extrabold ${
+              activeTab === "pending" ? "text-white" : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            قيد الانتظار ({pendingBookings.length})
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab("approved")}
+          className={`flex-1 py-2.5 rounded-xl flex-row items-center justify-center gap-1.5 ${
+            activeTab === "approved"
+              ? "bg-emerald-600 shadow-xs"
+              : "bg-transparent"
+          }`}
+        >
+          <Ionicons
+            name="checkmark-circle-outline"
+            size={16}
+            color={activeTab === "approved" ? "#FFFFFF" : "#64748B"}
+          />
+          <Text
+            className={`text-xs font-extrabold ${
+              activeTab === "approved" ? "text-white" : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            المؤكدة ({approvedBookings.length})
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab("all")}
+          className={`px-3 py-2.5 rounded-xl flex-row items-center justify-center gap-1 ${
+            activeTab === "all"
+              ? "bg-[#2A4D75] shadow-xs"
+              : "bg-transparent"
+          }`}
+        >
+          <Text
+            className={`text-xs font-extrabold ${
+              activeTab === "all" ? "text-white" : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            الكل ({bookings.length})
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {loading ? (
         <View className="py-2 flex-row items-center gap-2">
           <ActivityIndicator size="small" color="#2A4D75" />
-          <Text className="text-xs text-slate-500">Loading incoming requests...</Text>
+          <Text className="text-xs text-slate-500">Loading appointments...</Text>
         </View>
       ) : null}
 
@@ -195,15 +281,28 @@ export default function VetBookingsScreen({
         </View>
       ) : null}
 
-      {bookings.length === 0 ? (
-        <AppCard color="bg-white dark:bg-[#1E2733]" className="p-6 items-center">
-          <Ionicons name="calendar-outline" size={32} color="#94A3B8" />
-          <Text className="text-sm font-bold text-slate-500 mt-2">
-            No incoming bookings at the moment.
+      {displayedBookings.length === 0 ? (
+        <AppCard color="bg-white dark:bg-[#1E2733]" className="p-8 items-center border border-slate-200 dark:border-slate-700">
+          <Ionicons
+            name={activeTab === "pending" ? "file-tray-outline" : "calendar-outline"}
+            size={40}
+            color="#94A3B8"
+          />
+          <Text className="text-sm font-extrabold text-[#2A4D75] dark:text-white mt-3">
+            {activeTab === "pending"
+              ? "لا توجد طلبات حجز قيد الانتظار حالياً"
+              : activeTab === "approved"
+              ? "لا توجد حجوزات مؤكدة بعد"
+              : "لا توجد حجوزات"}
+          </Text>
+          <Text className="text-xs text-slate-500 text-center mt-1">
+            {activeTab === "pending"
+              ? "أي طلبات حجز جديدة من أصحاب الحيوانات ستظهر هنا لتأكيدها."
+              : "الحجوزات التي تقوم بتأكيدها ستظهر دائماً في هذا القسم."}
           </Text>
         </AppCard>
       ) : (
-        bookings.map((booking) => {
+        displayedBookings.map((booking) => {
           const isProcessing = processingId === booking.id;
           return (
             <AppCard
@@ -246,14 +345,14 @@ export default function VetBookingsScreen({
                       ? "✓ مؤكد (Approved)"
                       : booking.status === "rejected"
                       ? "✕ مرفوض (Rejected)"
-                      : "قيد الانتظار (Pending)"}
+                      : "⏳ قيد الانتظار (Pending)"}
                   </Text>
                 </View>
               </View>
 
               <View className="flex-row items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
                 <Text className="text-xs font-semibold text-[#557FB3]">
-                  Slot Status: {booking.slotStatus === "booked" ? "Booked" : "Available"}
+                  Slot Status: {booking.slotStatus === "booked" ? "Booked (محجوز)" : "Available (متاح)"}
                 </Text>
 
                 {booking.status === "pending" ? (
@@ -272,11 +371,11 @@ export default function VetBookingsScreen({
                     <TouchableOpacity
                       onPress={() => handleDecision(booking.id, "approved")}
                       disabled={isProcessing}
-                      className="px-4 py-2 rounded-xl bg-emerald-600 flex-row items-center gap-1.5"
+                      className="px-4 py-2 rounded-xl bg-emerald-600 flex-row items-center gap-1.5 shadow-xs"
                     >
                       <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" />
                       <Text className="text-xs font-bold text-white">
-                        {isProcessing ? "Confirming..." : "Confirm (تأكيد)"}
+                        {isProcessing ? "Confirming..." : "تأكيد (Confirm)"}
                       </Text>
                     </TouchableOpacity>
                   </View>
