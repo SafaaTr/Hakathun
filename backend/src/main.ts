@@ -52,7 +52,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1/docs', app, document);
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   logger.log(`Rafeeq Backend Server running successfully on http://localhost:${port}/api/v1`);
   logger.log(`Swagger Documentation available at http://localhost:${port}/api/v1/docs`);
 }
