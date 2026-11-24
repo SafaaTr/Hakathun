@@ -115,21 +115,21 @@ export default function AdminHostsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((host) => {
+        {filtered.map((host, idx) => {
           const isAvailable = (host.status || "available") === "available";
-          const hostId = host._id || host.userId || host.hostUserId || "";
+          const hostId = host._id || host.userId || host.hostUserId || `host-${idx}`;
 
           return (
             <div
-              key={hostId}
-              className={`bg-card border border-card-border rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4 transition-all ${
+              key={`host-${hostId}-${idx}`}
+              className={`group bg-card border border-card-border rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:-translate-y-1.5 hover:shadow-lg hover:border-amber-500/50 transition-all duration-200 ${
                 !isAvailable ? "opacity-60 bg-muted/5 border-dashed" : ""
               }`}
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                       <Home className="w-5 h-5" />
                     </div>
                     <div>

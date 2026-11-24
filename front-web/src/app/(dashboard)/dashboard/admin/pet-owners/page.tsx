@@ -52,9 +52,12 @@ export default function AdminPetOwnersPage() {
           </thead>
           <tbody className="divide-y divide-card-border text-sm">
             {filtered.map((owner, idx) => {
-              const ownerKey = owner._id || (owner as any).id || `owner-${idx}-${owner.phone}`;
+              const ownerKey = `owner-${owner._id || "id"}-${owner.phone || "ph"}-${idx}`;
               return (
-                <tr key={ownerKey} className="hover:bg-cream/20 transition-colors">
+                <tr
+                  key={ownerKey}
+                  className="hover:bg-cream/30 dark:hover:bg-card-border/30 transition-all duration-150"
+                >
                   <td className="py-4 px-6 font-bold text-foreground flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-cream dark:bg-card-border flex items-center justify-center text-navy dark:text-yellow">
                       <PawPrint className="w-4 h-4" />

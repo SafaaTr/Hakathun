@@ -89,13 +89,13 @@ export default function AdminStoresPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((store, idx) => (
           <div
-            key={store._id || (store as any).id || `store-${idx}`}
-            className="bg-card border border-card-border rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4"
+            key={`store-${store._id || idx}`}
+            className="group bg-card border border-card-border rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:-translate-y-1.5 hover:shadow-lg hover:border-yellow/50 transition-all duration-200"
           >
             <div className="space-y-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-yellow/20 text-navy dark:text-yellow flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-yellow/20 text-navy dark:text-yellow flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                     <Store className="w-5 h-5" />
                   </div>
                   <div>

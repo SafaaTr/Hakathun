@@ -85,13 +85,13 @@ export function Sidebar({ className = "" }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:translate-x-1.5 ${
                     isActive
-                      ? "bg-yellow text-slate-900 shadow-sm"
+                      ? "bg-yellow text-slate-900 shadow-sm font-bold"
                       : "text-white/85 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  <Icon className="w-5 h-5 shrink-0" />
+                  <Icon className="w-5 h-5 shrink-0 group-hover:scale-110 transition-transform duration-200" />
                   <span>{item.label}</span>
                 </Link>
               );

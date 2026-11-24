@@ -33,21 +33,21 @@ export function WelcomeBanner({
             <>
               <Link
                 href="/dashboard/admin/stores"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 active:scale-[0.98] cursor-pointer"
               >
                 <Store className="w-3.5 h-3.5 text-navy" />
                 <span>Manage Stores</span>
               </Link>
               <Link
                 href="/dashboard/admin/doctors"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 active:scale-[0.98] cursor-pointer"
               >
                 <Stethoscope className="w-3.5 h-3.5 text-navy" />
                 <span>Manage Doctors</span>
               </Link>
               <Link
                 href="/dashboard/admin/hosts"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-bold text-xs shadow-xs hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 active:scale-[0.98] cursor-pointer"
               >
                 <Users className="w-3.5 h-3.5 text-navy" />
                 <span>Manage Hosts</span>
@@ -56,7 +56,7 @@ export function WelcomeBanner({
           ) : (
             <Link
               href="/dashboard/products"
-              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white text-slate-900 font-bold text-sm shadow-xs hover:bg-slate-50 transition-all active:scale-[0.98] cursor-pointer"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white text-slate-900 font-bold text-sm shadow-xs hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 active:scale-[0.98] cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4 text-navy" />
               <span>Manage products</span>

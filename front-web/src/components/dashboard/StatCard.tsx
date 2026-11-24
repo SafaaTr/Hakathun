@@ -9,7 +9,7 @@ interface StatCardProps {
 
 export function StatCard({ label, value, subValue, icon }: StatCardProps) {
   return (
-    <div className="bg-card border border-card-border rounded-2xl p-6 shadow-xs transition-all duration-150 hover:shadow-md flex flex-col justify-between">
+    <div className="bg-card border border-card-border rounded-2xl p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-yellow/40 flex flex-col justify-between">
       {/* Metric Label + Icon */}
       <div className="flex items-center gap-2.5 text-muted text-xs font-semibold tracking-wide">
         <span className="text-navy dark:text-yellow">{icon}</span>
