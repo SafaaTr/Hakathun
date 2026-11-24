@@ -322,12 +322,99 @@ export default function DashboardHomePage() {
           </div>
         </div>
       ) : (
-        /* Recent Orders Section for Store Owner */
-        <RecentOrdersTable
-          orders={orders}
-          onApproveOrder={handleApproveOrder}
-          onRejectOrder={handleRejectOrder}
-        />
+        /* Store Management Hub & Recent Orders Section for Store Owner */
+        <div className="space-y-6">
+          {/* Store Quick Navigation Cards with Admin-style animations */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {/* Products Hub Card */}
+            <Link
+              href="/dashboard/products"
+              className="group bg-card border border-card-border rounded-2xl p-5 shadow-xs transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl hover:border-yellow/50 flex flex-col justify-between space-y-4 cursor-pointer"
+            >
+              <div className="flex items-start justify-between">
+                <div className="w-11 h-11 rounded-2xl bg-yellow/20 text-navy dark:text-yellow flex items-center justify-center group-hover:scale-110 group-hover:rotate-2 transition-transform duration-200">
+                  <ShoppingBag className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-navy dark:text-yellow bg-cream dark:bg-card-border/60 px-2.5 py-1 rounded-full border border-card-border shadow-2xs group-hover:scale-105 transition-transform duration-150">
+                  {stats.availableProducts} Available
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-foreground group-hover:text-yellow transition-colors duration-150">
+                  Product Inventory
+                </h3>
+                <p className="text-xs text-muted mt-1 leading-relaxed">
+                  Add new items, update prices, adjust stock, and edit photos.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-navy dark:text-yellow group-hover:translate-x-2 transition-transform duration-200">
+                <span>Manage Products</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </Link>
+
+            {/* Orders Hub Card */}
+            <Link
+              href="/dashboard/orders"
+              className="group bg-card border border-card-border rounded-2xl p-5 shadow-xs transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl hover:border-blue/50 flex flex-col justify-between space-y-4 cursor-pointer"
+            >
+              <div className="flex items-start justify-between">
+                <div className="w-11 h-11 rounded-2xl bg-blue/20 text-blue flex items-center justify-center group-hover:scale-110 group-hover:rotate-2 transition-transform duration-200">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/20 shadow-2xs group-hover:scale-105 transition-transform duration-150">
+                  {stats.pendingOrders} Pending
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-foreground group-hover:text-blue transition-colors duration-150">
+                  Purchase Orders
+                </h3>
+                <p className="text-xs text-muted mt-1 leading-relaxed">
+                  Review incoming requests, approve deliveries, and track orders.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-blue group-hover:translate-x-2 transition-transform duration-200">
+                <span>View All Orders</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </Link>
+
+            {/* Profile Hub Card */}
+            <Link
+              href="/dashboard/profile"
+              className="group bg-card border border-card-border rounded-2xl p-5 shadow-xs transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl hover:border-emerald-500/50 flex flex-col justify-between space-y-4 cursor-pointer"
+            >
+              <div className="flex items-start justify-between">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/20 text-emerald-600 flex items-center justify-center group-hover:scale-110 group-hover:rotate-2 transition-transform duration-200">
+                  <Store className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-500/20 shadow-2xs group-hover:scale-105 transition-transform duration-150">
+                  Active Store
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-foreground group-hover:text-emerald-600 transition-colors duration-150">
+                  Store Profile & Settings
+                </h3>
+                <p className="text-xs text-muted mt-1 leading-relaxed">
+                  Edit store address, phone contact, and operational preferences.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 group-hover:translate-x-2 transition-transform duration-200">
+                <span>Edit Profile</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </Link>
+          </div>
+
+          {/* Recent Orders Section for Store Owner */}
+          <RecentOrdersTable
+            orders={orders}
+            onApproveOrder={handleApproveOrder}
+            onRejectOrder={handleRejectOrder}
+          />
+        </div>
       )}
     </div>
   );

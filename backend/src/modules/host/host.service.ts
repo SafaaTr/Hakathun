@@ -220,7 +220,7 @@ export class HostService implements OnModuleInit {
       .sort({ createdAt: -1 })
       .exec();
 
-    if (bookings.length === 0) {
+    if (bookings.length === 0 || !bookings.some((b) => b.status === 'pending')) {
       const owner = await this.userModel.findOne({ roles: 'pet_owner' }).exec();
       const pet = await this.petModel.findOne().exec();
       if (owner && pet) {
@@ -242,22 +242,24 @@ export class HostService implements OnModuleInit {
           status: 'pending',
         });
 
-        const start2 = new Date(now);
-        start2.setDate(start2.getDate() - 10);
-        const end2 = new Date(now);
-        end2.setDate(end2.getDate() - 7);
+        if (bookings.length === 0) {
+          const start2 = new Date(now);
+          start2.setDate(start2.getDate() - 10);
+          const end2 = new Date(now);
+          end2.setDate(end2.getDate() - 7);
 
-        await this.hostBookingModel.create({
-          referenceCode: this.generateReference(),
-          petOwnerId: owner._id,
-          hostUserId: new Types.ObjectId(hostUserId),
-          petId: pet._id,
-          startDate: start2,
-          endDate: end2,
-          foodNotes: 'Chicken & rice evening meal.',
-          totalPrice: 112000,
-          status: 'approved',
-        });
+          await this.hostBookingModel.create({
+            referenceCode: this.generateReference(),
+            petOwnerId: owner._id,
+            hostUserId: new Types.ObjectId(hostUserId),
+            petId: pet._id,
+            startDate: start2,
+            endDate: end2,
+            foodNotes: 'Chicken & rice evening meal.',
+            totalPrice: 112000,
+            status: 'approved',
+          });
+        }
 
         bookings = await this.hostBookingModel
           .find({ hostUserId: new Types.ObjectId(hostUserId) })

@@ -160,13 +160,13 @@ export default function PurchaseOrdersPage() {
                 {filteredOrders.map((order) => (
                   <tr
                     key={order._id}
-                    className="hover:bg-cream/30 dark:hover:bg-card-border/20 transition-all duration-150"
+                    className="hover:bg-cream/40 dark:hover:bg-card-border/30 transition-all duration-150 group"
                   >
                     {/* Reference Code */}
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-cream dark:bg-card-border flex items-center justify-center text-navy dark:text-yellow shrink-0">
-                          <ShoppingCart className="w-3.5 h-3.5" />
+                        <div className="w-8 h-8 rounded-xl bg-cream dark:bg-card-border flex items-center justify-center text-navy dark:text-yellow shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-200">
+                          <ShoppingCart className="w-4 h-4" />
                         </div>
                         <span className="font-extrabold text-navy dark:text-yellow">
                           {order.referenceCode}
@@ -213,14 +213,14 @@ export default function PurchaseOrdersPage() {
                           <>
                             <button
                               onClick={() => handleStatusUpdate(order._id, "approved")}
-                              className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 transition-all duration-150 hover:scale-110 active:scale-95 cursor-pointer shadow-xs"
+                              className="p-1.5 rounded-xl text-emerald-600 bg-emerald-50/60 hover:bg-emerald-100 dark:hover:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 transition-all duration-150 hover:scale-115 active:scale-90 cursor-pointer shadow-xs"
                               title="Approve Order"
                             >
                               <Check className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleStatusUpdate(order._id, "rejected")}
-                              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-800 transition-all duration-150 hover:scale-110 active:scale-95 cursor-pointer shadow-xs"
+                              className="p-1.5 rounded-xl text-rose-600 bg-rose-50/60 hover:bg-rose-100 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-800 transition-all duration-150 hover:scale-115 active:scale-90 cursor-pointer shadow-xs"
                               title="Reject Order"
                             >
                               <X className="w-4 h-4" />

@@ -9,16 +9,20 @@ interface StatCardProps {
 
 export function StatCard({ label, value, subValue, icon }: StatCardProps) {
   return (
-    <div className="bg-card border border-card-border rounded-2xl p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-yellow/40 flex flex-col justify-between">
+    <div className="group bg-card border border-card-border rounded-2xl p-6 shadow-xs transition-all duration-200 hover:-translate-y-1.5 hover:shadow-lg hover:border-yellow/50 flex flex-col justify-between cursor-default">
       {/* Metric Label + Icon */}
       <div className="flex items-center gap-2.5 text-muted text-xs font-semibold tracking-wide">
-        <span className="text-navy dark:text-yellow">{icon}</span>
-        <span>{label}</span>
+        <span className="text-navy dark:text-yellow transition-transform duration-200 group-hover:scale-110 group-hover:rotate-3">
+          {icon}
+        </span>
+        <span className="group-hover:text-foreground transition-colors duration-150">
+          {label}
+        </span>
       </div>
 
       {/* Metric Values */}
       <div className="flex items-baseline gap-3 mt-4">
-        <span className="text-3xl font-extrabold text-foreground tracking-tight">
+        <span className="text-3xl font-extrabold text-foreground tracking-tight group-hover:text-navy dark:group-hover:text-yellow transition-colors duration-200">
           {value}
         </span>
         {subValue && (

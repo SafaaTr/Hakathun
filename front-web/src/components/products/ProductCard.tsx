@@ -19,7 +19,7 @@ export function ProductCard({ product, onEdit, onDeactivate }: ProductCardProps)
 
   return (
     <div
-      className={`group bg-card border border-card-border rounded-2xl overflow-hidden shadow-xs hover:-translate-y-1.5 hover:shadow-lg hover:border-yellow/50 transition-all duration-200 flex flex-col justify-between ${
+      className={`group bg-card border border-card-border rounded-2xl overflow-hidden shadow-xs hover:-translate-y-2 hover:shadow-xl hover:border-yellow/50 transition-all duration-300 flex flex-col justify-between ${
         !isAvailable ? "opacity-75" : ""
       }`}
     >
@@ -65,7 +65,7 @@ export function ProductCard({ product, onEdit, onDeactivate }: ProductCardProps)
             variant="secondary"
             size="sm"
             onClick={() => onEdit(product)}
-            className="p-2 transition-all duration-150 hover:scale-105 active:scale-95"
+            className="p-2 transition-all duration-150 hover:scale-110 active:scale-90 hover:shadow-md hover:border-yellow/50"
             title="Edit product"
           >
             <Edit2 className="w-4 h-4 text-navy dark:text-yellow" />
@@ -76,7 +76,7 @@ export function ProductCard({ product, onEdit, onDeactivate }: ProductCardProps)
               variant="secondary"
               size="sm"
               onClick={() => onDeactivate(product._id)}
-              className="p-2 text-muted hover:text-danger hover:border-danger/40 transition-all duration-150 hover:scale-105 active:scale-95"
+              className="p-2 text-muted hover:text-danger hover:border-danger/40 transition-all duration-150 hover:scale-110 active:scale-90 hover:shadow-md"
               title="Deactivate product (make unavailable)"
             >
               <EyeOff className="w-4 h-4" />
