@@ -2,7 +2,7 @@
 // Independent service for doctor authentication with legacy doctor endpoints
 
 
-export const LEGACY_DOCTOR_API_BASE_URL = "http://192.168.10.78:3001/api/doctors";
+export const LEGACY_DOCTOR_API_BASE_URL = "http://192.168.10.241:3001/api/doctors";
 
 export interface LegacyDoctorUser {
   _id: string;
